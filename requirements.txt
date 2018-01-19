@@ -1,0 +1,14 @@
+Django==1.11
+docopt==0.6.2
+h5py==2.7.1
+Keras==2.1.2
+matplotlib==1.5.2rc2
+numpy==1.13.3
+Pillow-SIMD==4.3.0.post0
+pytest==2.9.2
+scipy==0.17.1
+simplegeneric==0.8.1
+simplejson==3.8.2
+sqlparse==0.1.18
+tensorflow==1.4.0
+tensorflow-tensorboard==0.4.0rc3
