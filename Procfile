@@ -1,0 +1,1 @@
+web: gunicorn mathcam.wsgi --log-file -
