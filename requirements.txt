@@ -11,6 +11,6 @@ scipy==0.17.1
 simplegeneric==0.8.1
 simplejson==3.8.2
 sqlparse==0.1.18
-tensorflow==1.4.0
+tensorflow=="*"
 tensorflow-tensorboard==0.4.0rc3
 whitenoise==3.3.1
