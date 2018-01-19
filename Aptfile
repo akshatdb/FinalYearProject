@@ -8,3 +8,9 @@ libswscale-dev
 libv4l-dev
 libatlas-base-dev 
 gfortran
+libice6
+libsm6
+libxt6
+libxrender1
+libfontconfig1
+libcups2
