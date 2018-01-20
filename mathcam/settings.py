@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'mathcam.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', 
         'NAME': 'myproject',
         'USER': 'root',
         'PASSWORD': '9807434191',
@@ -86,6 +86,7 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+
 
 
 # Password validation
