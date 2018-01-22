@@ -1,13 +1,55 @@
 //Handle Changes
-var x = [],y = [],w = [],h = [],values = [],imagename,osizex,osizey,change_list = {},clen = 0,nums = [],numlist = [],result = 0;
+var imagename,osizex,osizey,change_list = {},clen = 0,numbers = [],numlist = [],symlist = [],result = 0;
+
+
 function setresults(){
-    for (var i = 0;i < nums.length; i++)
+    result = 0;
+    for (var i = 0;i < numbers.length; i++)
     {
-        result = result + nums[i][4];
+        result = result + numbers[i][4];
     }
     $('.answer').text(result);
 }
-function find_num(){
+//find numbers in the image
+function sortNumbers(){
+    numbers.sort(function(a, b) {
+        //sort by x, secondary by y
+        return a[1]-b[1];
+    });
+    for(var i = 0;i< numbers.length;i++)
+    {
+       numbers[i][5] = i; 
+    }
+    for(var i = 0; i<numbers.length; i++)
+    {
+        curr = numbers[i];
+        xc = curr[0];
+        yc = curr[1];
+        wc = curr[2];
+        hc = curr[3];
+        for(var j = 0; j<numbers.length; j++)
+        {
+            if(numbers[j][5]!=curr)
+            {
+                xp = numbers[j][0];
+                yp = numbers[j][1];
+                wp = numbers[j][2];
+                hp = numbers[j][3];
+                if( ((yp + hp) < (yc + hc + hc/3)) && (yp > yc-hc/3))
+                {
+                            numbers[j][5] = curr[5];
+                }
+            }
+        }
+    }
+    numbers.sort(function(a,b){
+        if (a[5]==b[5])
+            return a[0]-b[0];
+        else
+            return 0;
+    });
+}
+function sortDigits(){
     numlist.sort(function(a, b) {
         //sort by x, secondary by y
         return a[1]-b[1];
@@ -19,17 +61,21 @@ function find_num(){
     for(var i = 0; i<numlist.length; i++)
     {
         curr = numlist[i];
+        xc = curr[0];
         yc = curr[1];
+        wc = curr[2];
         hc = curr[3];
         for(var j = 0; j<numlist.length; j++)
         {
             if(numlist[j][5]!=curr)
             {
+                xp = numlist[j][0];
                 yp = numlist[j][1];
+                wp = numlist[j][2];
                 hp = numlist[j][3];
-                if( ((yp + hp) < (yc + hc + hc/3)) && (yp > yc-hc/3))
+                if( ((yp + hp) < (yc + hc + hc/6)) && (yp > yc-hc/6))
                 {
-                    numlist[j][5] = curr[5];
+                            numlist[j][5] = curr[5];
                 }
             }
         }
@@ -40,10 +86,12 @@ function find_num(){
         else
             return 0;
     });
+}
+function findNumbers(){
     c = -1;
     for(var i=0; i<numlist.length; i++)
     {
-        if(numlist[i][5]!=c)
+        if(numlist[i][5]!=c )
         {
             c = numlist[i][5];
             xptr = numlist[i][0];
@@ -57,29 +105,303 @@ function find_num(){
             wptr = (numlist[i][0]+numlist[i][2]) - xptr;
             vptr = vptr*10 + numlist[i][4];
         }
-        if((i+1)>= numlist.length || numlist[i+1][5]!=c)
-            nums.push([xptr,yptr,wptr,hptr,vptr]);
+        if((i+1)>= numlist.length || numlist[i+1][5]!=c || (numlist[i+1][0] > (xptr + wptr +hptr)))
+        {
+          numbers.push([xptr,yptr,wptr,hptr,vptr]);
+          c = -1;
+        }
     }
 }
-function scalesizes(){
+
+function findLeftRight(i)
+{
+    xs = symlist[i][0];
+    ys = symlist[i][1];
+    ws = symlist[i][2];
+    hs = symlist[i][3];
+    cleft = 0;
+    cright = 0;
+    for(var j = 0; j < numbers.length; j++)
+    {
+        yn = numbers[j][1];
+        hn = numbers[j][3];
+        if(( yn-hs/3 < ys ) && ( (yn+hn+hs/3) > (ys+hs) ) )
+        {
+            xn = numbers[j][0];
+            wn = numbers[j][2];
+            if( (xn+wn-ws/3) < (xs) && (xn+wn+ws+ws) > (xs) )
+            {
+                leftOp = j;
+                cleft++;
+            }
+            else if( (xn+ws/3) > (xs+ws) && (xn) < (xs+ws+ws+ws) )
+            {
+                rightOp = j;
+                cright++;
+            }
+        }
+    }
+    if(cleft == 1 && cright == 1)
+        return [true,leftOp,rightOp];
+    else
+        return [false,-1,-1];
+}
+function findAboveBelow(i)
+{
+    xs = symlist[i][0];
+    ys = symlist[i][1];
+    ws = symlist[i][2];
+    hs = symlist[i][3];
+    cnum = 0;
+    cden = 0;
+    for(var j = 0; j < numbers.length; j++)
+    {
+        xn = numbers[j][0];
+        wn = numbers[j][2];
+        if(( xn > (xs-ws/2) ) && ( (xn+wn) < (xs+ws+ws/2) ) )
+        {
+         
+            hn = numbers[j][3];
+            yn = numbers[j][1];
+            if( ( yn > (ys-ws-ws) ) && ( (yn+hn) < (ys+hs) ) )
+            {
+                numerator = j;
+                cnum++;
+            }
+            else if( ( yn > ys ) && ( (yn+hn) < (ys+ws+ws)))
+            {
+                denominator = j;
+                cden++;
+            }
+        }
+    }
+    if(cnum == 1 && cden == 1)
+        return [true,numerator,denominator];
+    else
+        return [false,-1,-1];
+}
+
+function sortOperators(){
+    symlist.sort(function(a, b) {
+        //sort by x, secondary by y
+        return a[1]-b[1];
+    });
+    for(var i = 0;i< symlist.length;i++)
+    {
+       symlist[i][5] = i; 
+    }
+    for(var i = 0; i<symlist.length; i++)
+    {
+        curr = symlist[i];
+        xc = curr[0];
+        yc = curr[1];
+        wc = curr[2];
+        hc = curr[3];
+        for(var j = 0; j<symlist.length; j++)
+        {
+            if(symlist[j][5]!=curr)
+            {
+                xp = symlist[j][0];
+                yp = symlist[j][1];
+                wp = symlist[j][2];
+                hp = symlist[j][3];
+                if( ((yp + hp) < (yc + hc + hc/3)) && (yp > yc-hc/3))
+                {
+                            symlist[j][5] = curr[5];
+                }
+            }
+        }
+    }
+   symlist.sort(function(a,b){
+        if (a[5]==b[5])
+            return a[0]-b[0];
+        else
+            return 0;
+    });
+   for (var i=0;i < symlist.length;i++)
+   {
+        if(symlist[i][4] == '-')
+        {
+            if(( (i-1 < 0 ||symlist[i-1][5] != symlist[i][5]) && ( (i+1 >= symlist.length ) || symlist[i+1][5] != symlist[i][5]))||findAboveBelow(i)[0])
+            {
+                symlist[i][4] = '/';
+            }
+        }
+   }
+}
+
+//Calculate scales for recieved image
+function scaleSizes(){
     wh = $(window).height();
     ww = $(window).width();
-    var sizenx = sizex,sizeny = sizey;
     while(sizex>ww || sizey>wh)
     {
-        sizenx = sizex;
-        sizeny = sizey;
         sizex = 0.9 * sizex;
         sizey = 0.9 * sizey;
     }
-    return [sizenx,sizeny]
+    return [sizex,sizey]
 
 }
+
+//draw number boxes
+function digitDraw(){
+        for (var i = 0; i < numlist.length;i++){
+        digit = numlist[i];
+        $('#div-img').append('<div id="num-'+i+'" class="num-box" data-id=' + i + ' ></div>');
+        $('#num-'+i).text(digit[4]);
+        $('#num-'+i).css({
+            'height':digit[3],
+            'width':digit[2],
+            'top':digit[1],
+            'left':digit[0]
+        });
+    }
+}
+function symbolDraw(){
+        for (var i = 0; i < symlist.length;i++){
+        symbol = symlist[i];
+        $('#div-img').append('<div id="num-'+i+'" class="num-box" data-id=' + i + ' ></div>');
+        $('#num-'+i).text(digit[4]);
+        $('#num-'+i).css({
+            'height':symbol[3],
+            'width':symbol[2],
+            'top':symbol[1],
+            'left':symbol[0]
+        });
+    }
+}
+
+function solveDivisions(){
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(symlist[i][4] == '/')
+        {
+            xs = symlist[i][0];
+            ys = symlist[i][1];
+            ws = symlist[i][2];
+            hs = symlist[i][3];
+            [foundAboveBelow,numerator,denominator] = findAboveBelow(i);
+            if(foundAboveBelow)
+            {
+                if(denominator == 0)
+                {
+                    infinityFlag = 1;
+                    div = -1;
+                }
+                else{
+                    div = (1.0*numbers[numerator][4])/numbers[denominator][4];             
+                }
+                newy = numbers[numerator][1];
+                newh = numbers[denominator][1]+numbers[denominator][3] - newy;
+                newx = xs;
+                neww = ws;
+                if(numerator>denominator)
+                {
+                    numbers.splice(numerator,1);
+                    numbers.splice(denominator,1);
+                }
+                else
+                {
+                    numbers.splice(denominator,1);
+                    numbers.splice(numerator,1);
+                }
+                symlist.splice(i,1);
+                numbers.push([newx,newy,neww,newh,div,1]);
+                sortNumbers();
+            }
+
+        }
+
+    }
+}
+function solveMultiplications(){
+    for(var i = 0; i < symlist.length ; i++)
+    {
+        if(symlist[i][4] == 'x')
+        {
+            xs = symlist[i][0];
+            ys = symlist[i][1];
+            ws = symlist[i][2];
+            hs = symlist[i][3];
+            [foundLeftRight, leftOp, rightOp] = findLeftRight(i);
+            if(foundLeftRight)
+            {
+                product = numbers[leftOp][4] * numbers[rightOp][4];
+                newy = numbers[leftOp][1]<numbers[rightOp][1]?numbers[leftOp][1]:numbers[rightOp][1];
+                newx = numbers[leftOp][0];
+                neww = numbers[rightOp][0]+numbers[rightOp][2] - newx;
+                newh = (numbers[leftOp][1]+numbers[leftOp][3])>(numbers[rightOp][1]+numbers[rightOp][3])?(numbers[leftOp][1]+numbers[leftOp][3]):(numbers[rightOp][1]+numbers[rightOp][3]);
+                newh = newh - newy;
+                if(leftOp>rightOp)
+                {
+                    numbers.splice(leftOp,1);
+                    numbers.splice(rightOp,1);
+                }
+                else
+                {
+                    numbers.splice(rightOp,1);
+                    numbers.splice(leftOp,1);
+                }
+                symlist.splice(i,1);
+                numbers.push([newx,newy,neww,newh,product,1]);
+                sortNumbers();
+            }
+        }
+    }
+}
+function solveAddSub(){
+    for(var i = 0; i < symlist.length ; i++)
+    {
+        if(symlist[i][4] == '+' || symlist[i][4] == '-')
+        {
+            xs = symlist[i][0];
+            ys = symlist[i][1];
+            ws = symlist[i][2];
+            hs = symlist[i][3];
+            [foundLeftRight, leftOp, rightOp] = findLeftRight(i);
+            if(foundLeftRight)
+            {
+                if(symlist[i][4]=='+')
+                    answer = numbers[leftOp][4] + numbers[rightOp][4];
+                else
+                    answer = numbers[leftOp][4] - numbers[rightOp][4];
+                newy = numbers[leftOp][1]<numbers[rightOp][1]?numbers[leftOp][1]:numbers[rightOp][1];
+                newx = numbers[leftOp][0];
+                neww = numbers[rightOp][0]+numbers[rightOp][2] - newx;
+                newh = (numbers[leftOp][1]+numbers[leftOp][3])>(numbers[rightOp][1]+numbers[rightOp][3])?(numbers[leftOp][1]+numbers[leftOp][3]):(numbers[rightOp][1]+numbers[rightOp][3]);
+                newh = newh - newy;
+                if(leftOp>rightOp)
+                {
+                    numbers.splice(leftOp,1);
+                    numbers.splice(rightOp,1);
+                }
+                else
+                {
+                    numbers.splice(rightOp,1);
+                    numbers.splice(leftOp,1);
+                }
+                symlist.splice(i,1);
+                numbers.push([newx,newy,neww,newh,answer,1]);
+                sortNumbers();
+            }
+        }
+    }
+}
+
+function findResult(){
+    lastlength = 0;
+        solveDivisions();
+        solveMultiplications();
+        solveAddSub();
+        solveDivisions();
+}
+
+//Process Incoming Data for image
 function processdata(data){
     osizex = sizex = data['image']['x'];
     osizey = sizey = data['image']['y'];
     imagename = data['imagename'];
-    newsize = scalesizes();
+    newsize = scaleSizes();
     sizex = newsize[0];
     sizey = newsize[1];
     for (var key in data)
@@ -90,12 +412,10 @@ function processdata(data){
             wa = data[key]['w']*sizex+(data[key]['w']*sizex)/3;
             ha = data[key]['h']*sizey+(data[key]['h']*sizey)/3;
             va = data[key]['val'];
-            values.push(va);
-            x.push(xa);
-            y.push(ya);
-            w.push(wa);
-            h.push(ha);
-            numlist.push([xa,ya,wa,ha,va,Number(key)]);
+            if(Number(va) <= 9)
+                numlist.push([xa,ya,wa,ha,Number(va),Number(key)]);
+            else
+                symlist.push([xa,ya,wa,ha,va,Number(key)])
         }
     }
     var tmp = $('#file').prop('files')[0];
@@ -104,17 +424,12 @@ function processdata(data){
         'height':sizey,
         'background-image':'url(' + URL.createObjectURL(tmp) + ')'
     });
-    for (var i = 0; i < values.length;i++){
-        $('#div-img').append('<div id="num-'+i+'" class="num-box" data-id=' + i + ' ></div>');
-        $('#num-'+i).text(values[i]);
-        $('#num-'+i).css({
-            'height':h[i],
-            'width':w[i],
-            'top':y[i],
-            'left':x[i]
-        });
-    }
-    find_num();
+    digitDraw();
+    //symbolDraw();
+    sortDigits();
+    findNumbers();
+    sortOperators();
+    findResult();
     setresults();
     $('.num-box').on('click',function(){
         $(this).addClass('selected-num');
@@ -122,17 +437,19 @@ function processdata(data){
         $(this).text(val);
         i = $(this).data('id');
         change_list[clen] = {
-        	'x':x[i]/sizex,
-        	'y':y[i]/sizey,
-        	'w':w[i]/sizex,
-        	'h':h[i]/sizey,
+        	'x':numlist[i][0]/sizex,
+        	'y':numlist[i][1]/sizey,
+        	'w':numlist[i][2]/sizex,
+        	'h':numlist[i][3]/sizey,
         	'iname':imagename,
         	'val':val
         };
         clen++;
     });
 }
-    var Upload = function (file,addr,reqt,csrf) {
+
+
+var Upload = function (file,addr,reqt,csrf) {
     this.file = file;
     this.addr = addr;
     this.reqt = reqt;
@@ -177,6 +494,8 @@ Upload.prototype.doUpload = function () {
         },
         error: function (error) {
             // handle error
+            $('#failed-wrp').fadeIn('fast');
+            $('.overlay').fadeOut('slow');
         },
         async: true,
         data: formData,

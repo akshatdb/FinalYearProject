@@ -8,8 +8,8 @@ from django.utils import timezone
 from django.contrib import messages
 import json
 
-from .math import plot_image, solve_image, calc_image
-from .neuralnet import learn_model
+from .basiccal import findbasic
+from .basiccal import learn_model
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
 
@@ -39,7 +39,7 @@ def process(request):
         if form.is_valid():
         	data = form.save()
         	if process_type == 0:
-        		msg = calc_image(str(data.image)) 
+        		msg = findbasic(str(data.image)) 
         	elif process_type == 1:
         		msg = form
         	else:
@@ -56,5 +56,5 @@ def learn(request):
         h = data[str(i)]['h']
         imgurl = data[str(i)]['iname']
         val = data[str(i)]['val']
-        msg = learn_model(imgurl,float(x),float(y),float(w),float(h),int(val))
+        msg = learn_model(imgurl,float(x),float(y),float(w),float(h),val)
     return HttpResponse('ok');
