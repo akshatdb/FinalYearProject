@@ -295,15 +295,6 @@ i.github-icon:hover,i.github-icon:focus{
 		background-color:var(--color-btn-a);
 		color:white;
 	}
-	.answer-div{
-		width:10%;
-		padding:10px;
-		margin:auto;
-		background:var(--color-a);
-	}
-	.answer-div>*{
-		display:inline;
-	}
 }
 @media screen and (max-width:1024px)
 {
@@ -354,17 +345,6 @@ i.github-icon:hover,i.github-icon:focus{
 		background-color:var(--color-btn-a);
 		color:white;
 	}
-	.answer-div{
-		width:100%;
-		padding:10px;
-		position:fixed;
-		bottom:10px;
-		background:var(--color-a);
-	}
-.answer-div>*{
-	display:inline;
-}
-
 }
 @media (max-width:400px)
 {
@@ -384,7 +364,10 @@ i.github-icon:hover,i.github-icon:focus{
     width:100vh;
     border-radius: 0;
     margin: auto;
-    text-align: left;
+    color:white;
+    letter-spacing: 3px;
+    font-size:20px;
+    text-align: center;
     background: #fff;
     box-shadow: inset 1px 3px 6px rgba(0, 0, 0, 0.12);
 }
@@ -407,7 +390,7 @@ i.github-icon:hover,i.github-icon:focus{
 	z-index:10;
 	background-color:rgba(0, 0, 0, 0.81);
 }
-#process-wrp{
+#process-wrp,#failed-wrp{
 	display:none;
 	color:white;
 	font-size:20px;
@@ -439,6 +422,17 @@ i.github-icon:hover,i.github-icon:focus{
 #gif-1,#gif-2,#gif-3,#gif-4,#gif-5{
 	display: inline-block;
 }
+.answer-div{
+	width:100%;
+	padding:10px;
+	position:fixed;
+	bottom:0px;
+	z-index:11;
+	background:var(--color-a);
+}
+.answer-div>*{
+	display:inline;
+}
 .answer{
 	font-size:10px;
 	color:white;
@@ -449,6 +443,9 @@ body.overlay-open { overflow: hidden; }
 #div-img{
 	position:fixed;
 	top:0px;
+	left:0px;
+	right:0px;
+	margin:auto;
 	background-position: center;
 	background-size: cover;
 }

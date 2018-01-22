@@ -73,7 +73,7 @@ function sortDigits(){
                 yp = numlist[j][1];
                 wp = numlist[j][2];
                 hp = numlist[j][3];
-                if( ((yp + hp) < (yc + hc + hc/6)) && (yp > yc-hc/6))
+                if( ((yp + hp) < (yc + hc + hc/3)) && (yp > yc-hc/3))
                 {
                             numlist[j][5] = curr[5];
                 }
@@ -105,7 +105,7 @@ function findNumbers(){
             wptr = (numlist[i][0]+numlist[i][2]) - xptr;
             vptr = vptr*10 + numlist[i][4];
         }
-        if((i+1)>= numlist.length || numlist[i+1][5]!=c || (numlist[i+1][0] > (xptr + wptr +hptr)))
+        if((i+1)>= numlist.length || numlist[i+1][5]!=c || (numlist[i+1][0] > (xptr + wptr +hptr/2)))
         {
           numbers.push([xptr,yptr,wptr,hptr,vptr]);
           c = -1;
@@ -390,10 +390,10 @@ function solveAddSub(){
 
 function findResult(){
     lastlength = 0;
-        solveDivisions();
-        solveMultiplications();
-        solveAddSub();
-        solveDivisions();
+    solveDivisions();
+    solveMultiplications();
+    solveAddSub();
+    solveDivisions();
 }
 
 //Process Incoming Data for image
@@ -542,9 +542,6 @@ $('#file').on('change',function(){
 			'top':'40%'
 		})
 		$('#image-view').attr('src',URL.createObjectURL(tmp));
-		$('body').css({
-			'background-image':'url(../static/calc/images/backblur.png)'
-		});
 		$('body,html').animate({
 			scrollTop: $scrollTo.outerHeight()
 		});

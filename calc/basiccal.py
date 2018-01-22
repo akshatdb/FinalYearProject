@@ -154,7 +154,7 @@ def recognize(img, contours):
 			numimg = crop_img[b:b+d,a:a+c]
 			xr = float(c)/(c+d)
 			yr = float(d)/(c+d)
-			if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/14 and d<=h/14)):
+			if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/20 and d<=h/20)):
 				continue
 			num = detect_test_dnn(numimg,xr,yr)
 			if num != -1:
