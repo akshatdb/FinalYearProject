@@ -260,13 +260,27 @@ function digitDraw(){
 function symbolDraw(){
         for (var i = 0; i < symlist.length;i++){
         symbol = symlist[i];
-        $('#div-img').append('<div id="num-'+i+'" class="num-box" data-id=' + i + ' ></div>');
-        $('#num-'+i).text(digit[4]);
-        $('#num-'+i).css({
+        $('#div-img').append('<div id="sym-'+i+'" class="num-box" data-id=' + i + ' ></div>');
+        $('#sym-'+i).text(digit[4]);
+        $('#sym-'+i).css({
             'height':symbol[3],
             'width':symbol[2],
             'top':symbol[1],
             'left':symbol[0]
+        });
+    }
+}
+function drawList(listl)
+{
+    for (var i = 0; i < listl.length;i++){
+        listn = listl[i];
+        $('#div-img').append('<div id="listl-'+i+'" class="num-box" data-id=' + i + ' ></div>');
+        $('#listl-'+i).text(listn[4]);
+        $('#listl-'+i).css({
+            'height':listn[3],
+            'width':listn[2],
+            'top':listn[1],
+            'left':listn[0]
         });
     }
 }
@@ -306,6 +320,7 @@ function solveDivisions(){
                     numbers.splice(numerator,1);
                 }
                 symlist.splice(i,1);
+                i= i -1;
                 numbers.push([newx,newy,neww,newh,div,1]);
                 sortNumbers();
             }
@@ -343,6 +358,7 @@ function solveMultiplications(){
                     numbers.splice(leftOp,1);
                 }
                 symlist.splice(i,1);
+                i = i -1;
                 numbers.push([newx,newy,neww,newh,product,1]);
                 sortNumbers();
             }
@@ -381,6 +397,7 @@ function solveAddSub(){
                     numbers.splice(leftOp,1);
                 }
                 symlist.splice(i,1);
+                i = i - 1;
                 numbers.push([newx,newy,neww,newh,answer,1]);
                 sortNumbers();
             }
@@ -430,7 +447,7 @@ function processdata(data){
     sortDigits();
     findNumbers();
     sortOperators();
-    findResult();
+    //findResult();
     setresults();
     $('.num-box').on('click',function(){
         $(this).addClass('selected-num');
