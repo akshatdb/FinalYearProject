@@ -1,7 +1,7 @@
 # MathOCR
 My final year project using Convolutional Neural Networks to detect and solve equations in an image.
 
-#### Link
+## Link
 The WebApp is temporarily hosted at - [MathOCR](http://mathcam.herokuapp.com/)
 
 ## __Version History__
