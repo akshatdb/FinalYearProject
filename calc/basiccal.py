@@ -47,8 +47,10 @@ revclasses = {
 def mnist_scale(img,xr,yr):
     x = int(28*xr)
     y = int(28*yr)
-    if x<=0 or y<=0:
+    if x<=0:
     	return None
+    elif y<=0:
+    	y = 1
     xg = (28-x)/2
     yg = (28-y)/2
     img = Image.fromarray(img)
