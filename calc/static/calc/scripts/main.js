@@ -447,7 +447,7 @@ function processdata(data){
     sortDigits();
     findNumbers();
     sortOperators();
-    //findResult();
+    findResult();
     setresults();
     $('.num-box').on('click',function(){
         $(this).addClass('selected-num');
