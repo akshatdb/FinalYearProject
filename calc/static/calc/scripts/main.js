@@ -35,7 +35,7 @@ function sortNumbers(){
                 yp = numbers[j][1];
                 wp = numbers[j][2];
                 hp = numbers[j][3];
-                if( ((yp + hp) < (yc + hc + hc/3)) && (yp > yc-hc/3))
+                if( ((yp + hp) < (yc + hc + hc/2)) && (yp > yc-hc/2))
                 {
                             numbers[j][5] = curr[5];
                 }
@@ -73,7 +73,7 @@ function sortDigits(){
                 yp = numlist[j][1];
                 wp = numlist[j][2];
                 hp = numlist[j][3];
-                if( ((yp + hp) < (yc + hc + hc/3)) && (yp > yc-hc/3))
+                if( ((yp + hp) < (yc + hc + hc/2)) && (yp > yc-hc/2))
                 {
                             numlist[j][5] = curr[5];
                 }
@@ -222,7 +222,7 @@ function sortOperators(){
    {
         if(symlist[i][4] == '-')
         {
-            if(( (i-1 < 0 ||symlist[i-1][5] != symlist[i][5]) && ( (i+1 >= symlist.length ) || symlist[i+1][5] != symlist[i][5]))||findAboveBelow(i)[0])
+            if(findAboveBelow(i)[0])
             {
                 symlist[i][4] = '/';
             }
@@ -393,6 +393,7 @@ function findResult(){
     solveDivisions();
     solveMultiplications();
     solveAddSub();
+    sortOperators();
     solveDivisions();
 }
 
