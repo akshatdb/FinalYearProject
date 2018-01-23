@@ -22,8 +22,28 @@
 	padding:0;
 	margin:0;
 }
+@media screen and (min-width: 1024px)
+{
+	body
+	{
+		background-image: url('../images/background.jpg');
+	}
+}
+@media screen and (max-width: 1024px)
+{	
+	html
+	{
+ 		height:100%;
+ 		min-height:100%;
+ 	}	
+	body
+	{
+		background-image: url('../images/background.jpg');
+		background-position:center;
+		background-repeat: none;
+	}
+}
 body{
-	background-image: url('../images/background.jpg');
 	background-size: cover;
 	background-attachment: fixed;
 	width:100%;
@@ -179,18 +199,11 @@ i.github-icon:hover,i.github-icon:focus{
 	background: rgb(4, 66, 55);
 	padding:30px;
 }
-.choice-div{
-	position: relative;
-	background:rgba(0, 92, 74, 0.43);
-	display:none;
-	z-index:3;
-}
 .help-col,.feed-col{
 	box-sizing: border-box;
 	color:white;
 	border-radius: 5px;
 	padding:30px;
-	height:300px;
 	font-size: 20px;
 }
 .feed-form>input[type=submit]:hover{
@@ -218,6 +231,11 @@ i.github-icon:hover,i.github-icon:focus{
 		height:10px;
 		border-radius:10px;
 	}
+}
+.aboutus{
+	text-align: left;
+	padding:20px;
+	line-height:40px;
 }
 .message{
 	position:fixed;
@@ -247,6 +265,8 @@ i.github-icon:hover,i.github-icon:focus{
 	font-size:20px;
 	letter-spacing: 3px;
 	font-weight: lighter;
+	margin-bottom: 15px;
+	padding-bottom:10px;
 }
 .form-class>input[type=radio]{
 	display: none;
@@ -256,6 +276,9 @@ i.github-icon:hover,i.github-icon:focus{
 }
 @media screen and (min-width:1024px)
 {
+	.row{
+		display:flex;
+	}
 	.help-col{
 		margin:5px;
 	}
@@ -271,12 +294,8 @@ i.github-icon:hover,i.github-icon:focus{
 		text-align:center;
 		display: inline-block;
 	}
-	.feed-form{
-		position: absolute;
-		width:45%;
-	}
 	.feed-form>input{
-		width:45.3%;
+		width:45%;
 		margin-top:20px;
 		padding:10px;
 		border:none;
@@ -474,3 +493,10 @@ body.overlay-open { overflow: hidden; }
 .selected-num{
 	background:rgba(1, 1, 1, 0.39);
 }
+.choice-div{
+	position: relative;
+	background:rgba(0, 92, 74, 0.43);
+	display:none;
+	z-index:3;
+}
+
