@@ -82,9 +82,12 @@ function sortDigits(){
     }
     numlist.sort(function(a,b){
         if (a[5]==b[5])
+        {
+            console.log(a[0] + ',' +    b[0] + 'for' + a[4] + ',' +b[4])
             return a[0]-b[0];
+        }
         else
-            return 0;
+            return a[5]-b[5];
     });
 }
 function findNumbers(){
@@ -261,7 +264,7 @@ function symbolDraw(){
         for (var i = 0; i < symlist.length;i++){
         symbol = symlist[i];
         $('#div-img').append('<div id="sym-'+i+'" class="num-box" data-id=' + i + ' ></div>');
-        $('#sym-'+i).text(digit[4]);
+        $('#sym-'+i).text(symbol[4]);
         $('#sym-'+i).css({
             'height':symbol[3],
             'width':symbol[2],
