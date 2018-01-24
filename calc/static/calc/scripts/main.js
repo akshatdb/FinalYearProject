@@ -4,11 +4,13 @@ var imagename,osizex,osizey,change_list = {},clen = 0,numbers = [],numlist = [],
 
 function setresults(){
     result = 0;
+    resultstr = '';
     for (var i = 0;i < numbers.length; i++)
     {
         result = result + numbers[i][4];
+        resultstr = resultstr + numbers[i][6];
     }
-    $('.answer').text(result);
+    $('.answer').html(resultstr + ' = ' + result);
 }
 //find numbers in the image
 function sortNumbers(){
@@ -109,7 +111,7 @@ function findNumbers(){
         }
         if((i+1)>= numlist.length || numlist[i+1][5]!=c || (numlist[i+1][0] > (xptr + wptr +hptr/2)))
         {
-          numbers.push([xptr,yptr,wptr,hptr,vptr]);
+          numbers.push([xptr,yptr,wptr,hptr,vptr,1,String(vptr)]);
           c = -1;
         }
     }
@@ -305,7 +307,8 @@ function solveDivisions(){
                     div = -1;
                 }
                 else{
-                    div = (1.0*numbers[numerator][4])/numbers[denominator][4];             
+                    div = (1.0*numbers[numerator][4])/numbers[denominator][4];
+                    divstr = numbers[numerator][6] + '&#247;' + numbers[denominator][6];             
                 }
                 newy = numbers[numerator][1];
                 newh = numbers[denominator][1]+numbers[denominator][3] - newy;
@@ -323,7 +326,7 @@ function solveDivisions(){
                 }
                 symlist.splice(i,1);
                 i= i -1;
-                numbers.push([newx,newy,neww,newh,div,1]);
+                numbers.push([newx,newy,neww,newh,div,1,'(' + divstr + ')']);
                 sortNumbers();
             }
 
@@ -344,6 +347,7 @@ function solveMultiplications(){
             if(foundLeftRight)
             {
                 product = numbers[leftOp][4] * numbers[rightOp][4];
+                productstr = numbers[leftOp][6] + 'x' + numbers[rightOp][6];
                 newy = numbers[leftOp][1]<numbers[rightOp][1]?numbers[leftOp][1]:numbers[rightOp][1];
                 newx = numbers[leftOp][0];
                 neww = numbers[rightOp][0]+numbers[rightOp][2] - newx;
@@ -361,7 +365,7 @@ function solveMultiplications(){
                 }
                 symlist.splice(i,1);
                 i = i -1;
-                numbers.push([newx,newy,neww,newh,product,1]);
+                numbers.push([newx,newy,neww,newh,product,1,'(' + productstr + ')']);
                 sortNumbers();
             }
         }
@@ -380,9 +384,15 @@ function solveAddSub(){
             if(foundLeftRight)
             {
                 if(symlist[i][4]=='+')
+                {
                     answer = numbers[leftOp][4] + numbers[rightOp][4];
+                    answerstr = numbers[leftOp][6] + '+' + numbers[rightOp][6];
+                }
                 else
+                {
                     answer = numbers[leftOp][4] - numbers[rightOp][4];
+                    answerstr = numbers[leftOp][4] + '-' + numbers[rightOp][4];
+                }
                 newy = numbers[leftOp][1]<numbers[rightOp][1]?numbers[leftOp][1]:numbers[rightOp][1];
                 newx = numbers[leftOp][0];
                 neww = numbers[rightOp][0]+numbers[rightOp][2] - newx;
@@ -400,7 +410,7 @@ function solveAddSub(){
                 }
                 symlist.splice(i,1);
                 i = i - 1;
-                numbers.push([newx,newy,neww,newh,answer,1]);
+                numbers.push([newx,newy,neww,newh,answer,1, '(' + answerstr + ')']);
                 sortNumbers();
             }
         }
