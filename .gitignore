@@ -1,4 +1,6 @@
 *.sql
 *.pyc
 media/*.jpg
+media/*.png
+media/*.jpeg
 Tests/*.jpg
