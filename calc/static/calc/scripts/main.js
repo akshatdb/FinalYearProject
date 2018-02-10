@@ -8,88 +8,49 @@ function setresults(){
     for (var i = 0;i < numbers.length; i++)
     {
         result = result + numbers[i][4];
-        resultstr = resultstr + numbers[i][6];
+        resultstr = resultstr + '+' + numbers[i][6];
     }
-    $('.answer').html(resultstr + ' = ' + result);
+    $('.answer').html(resultstr.substr(1) + ' = ' + result);
 }
 //find numbers in the image
-function sortNumbers(){
-    numbers.sort(function(a, b) {
+function sortList(slist){
+    slist.sort(function(a, b) {
         //sort by x, secondary by y
         return a[1]-b[1];
     });
-    for(var i = 0;i< numbers.length;i++)
+    for(var i = 0;i< slist.length;i++)
     {
-       numbers[i][5] = i; 
+       slist[i][5] = i; 
     }
-    for(var i = 0; i<numbers.length; i++)
+    for(var i = 0; i<slist.length; i++)
     {
-        curr = numbers[i];
+        curr = slist[i];
         xc = curr[0];
         yc = curr[1];
         wc = curr[2];
         hc = curr[3];
-        for(var j = 0; j<numbers.length; j++)
+        for(var j = 0; j<slist.length; j++)
         {
-            if(numbers[j][5]!=curr)
+            if(slist[j][5]!=curr)
             {
-                xp = numbers[j][0];
-                yp = numbers[j][1];
-                wp = numbers[j][2];
-                hp = numbers[j][3];
+                xp = slist[j][0];
+                yp = slist[j][1];
+                wp = slist[j][2];
+                hp = slist[j][3];
                 if( ((yp + hp) < (yc + hc + hc/2)) && (yp > yc-hc/2))
                 {
-                            numbers[j][5] = curr[5];
+                            slist[j][5] = curr[5];
                 }
             }
         }
     }
-    numbers.sort(function(a,b){
+    slist.sort(function(a,b){
         if (a[5]==b[5])
             return a[0]-b[0];
-        else
-            return 0;
-    });
-}
-function sortDigits(){
-    numlist.sort(function(a, b) {
-        //sort by x, secondary by y
-        return a[1]-b[1];
-    });
-    for(var i = 0;i< numlist.length;i++)
-    {
-       numlist[i][5] = i; 
-    }
-    for(var i = 0; i<numlist.length; i++)
-    {
-        curr = numlist[i];
-        xc = curr[0];
-        yc = curr[1];
-        wc = curr[2];
-        hc = curr[3];
-        for(var j = 0; j<numlist.length; j++)
-        {
-            if(numlist[j][5]!=curr)
-            {
-                xp = numlist[j][0];
-                yp = numlist[j][1];
-                wp = numlist[j][2];
-                hp = numlist[j][3];
-                if( ((yp + hp) < (yc + hc + hc/2)) && (yp > yc-hc/2))
-                {
-                            numlist[j][5] = curr[5];
-                }
-            }
-        }
-    }
-    numlist.sort(function(a,b){
-        if (a[5]==b[5])
-        {
-            return a[0]-b[0];
-        }
         else
             return a[5]-b[5];
     });
+    return slist
 }
 function findNumbers(){
     c = -1;
@@ -109,7 +70,7 @@ function findNumbers(){
             wptr = (numlist[i][0]+numlist[i][2]) - xptr;
             vptr = vptr*10 + numlist[i][4];
         }
-        if((i+1)>= numlist.length || numlist[i+1][5]!=c || (numlist[i+1][0] > (xptr + wptr +hptr/2)))
+        if((i+1)>= numlist.length || numlist[i+1][5]!=c || (numlist[i+1][0]-numlist[i+1][3]/3 > (xptr + wptr +hptr/3)))
         {
           numbers.push([xptr,yptr,wptr,hptr,vptr,1,String(vptr)]);
           c = -1;
@@ -184,44 +145,9 @@ function findAboveBelow(i)
     else
         return [false,-1,-1];
 }
-
-function sortOperators(){
-    symlist.sort(function(a, b) {
-        //sort by x, secondary by y
-        return a[1]-b[1];
-    });
-    for(var i = 0;i< symlist.length;i++)
-    {
-       symlist[i][5] = i; 
-    }
-    for(var i = 0; i<symlist.length; i++)
-    {
-        curr = symlist[i];
-        xc = curr[0];
-        yc = curr[1];
-        wc = curr[2];
-        hc = curr[3];
-        for(var j = 0; j<symlist.length; j++)
-        {
-            if(symlist[j][5]!=curr)
-            {
-                xp = symlist[j][0];
-                yp = symlist[j][1];
-                wp = symlist[j][2];
-                hp = symlist[j][3];
-                if( ((yp + hp) < (yc + hc + hc/3)) && (yp > yc-hc/3))
-                {
-                            symlist[j][5] = curr[5];
-                }
-            }
-        }
-    }
-   symlist.sort(function(a,b){
-        if (a[5]==b[5])
-            return a[0]-b[0];
-        else
-            return 0;
-    });
+function findDivisions()
+{
+   if(symlist)
    for (var i=0;i < symlist.length;i++)
    {
         if(symlist[i][4] == '-')
@@ -233,7 +159,6 @@ function sortOperators(){
         }
    }
 }
-
 //Calculate scales for recieved image
 function scaleSizes(){
     wh = $(window).height();
@@ -247,40 +172,13 @@ function scaleSizes(){
 
 }
 
-//draw number boxes
-function digitDraw(){
-        for (var i = 0; i < numlist.length;i++){
-        digit = numlist[i];
-        $('#div-img').append('<div id="num-'+i+'" class="num-box" data-id=' + i + ' ></div>');
-        $('#num-'+i).text(digit[4]);
-        $('#num-'+i).css({
-            'height':digit[3],
-            'width':digit[2],
-            'top':digit[1],
-            'left':digit[0]
-        });
-    }
-}
-function symbolDraw(){
-        for (var i = 0; i < symlist.length;i++){
-        symbol = symlist[i];
-        $('#div-img').append('<div id="sym-'+i+'" class="num-box" data-id=' + i + ' ></div>');
-        $('#sym-'+i).text(symbol[4]);
-        $('#sym-'+i).css({
-            'height':symbol[3],
-            'width':symbol[2],
-            'top':symbol[1],
-            'left':symbol[0]
-        });
-    }
-}
 function drawList(listl)
 {
     for (var i = 0; i < listl.length;i++){
         listn = listl[i];
-        $('#div-img').append('<div id="listl-'+i+'" class="num-box" data-id=' + i + ' ></div>');
-        $('#listl-'+i).text(listn[4]);
-        $('#listl-'+i).css({
+        $('#div-img').append('<div id="' + listl.length + '-'+i+'" class="num-box" data-id=' + i + ' ></div>');
+        $('#'+listl.length + '-'+i).text(listn[4]);
+        $('#'+listl.length + '-'+i).css({
             'height':listn[3],
             'width':listn[2],
             'top':listn[1],
@@ -327,7 +225,7 @@ function solveDivisions(){
                 symlist.splice(i,1);
                 i= i -1;
                 numbers.push([newx,newy,neww,newh,div,1,'(' + divstr + ')']);
-                sortNumbers();
+                numbers = sortList(numbers);
             }
 
         }
@@ -366,7 +264,7 @@ function solveMultiplications(){
                 symlist.splice(i,1);
                 i = i -1;
                 numbers.push([newx,newy,neww,newh,product,1,'(' + productstr + ')']);
-                sortNumbers();
+                numbers = sortList(numbers);
             }
         }
     }
@@ -411,7 +309,7 @@ function solveAddSub(){
                 symlist.splice(i,1);
                 i = i - 1;
                 numbers.push([newx,newy,neww,newh,answer,1, '(' + answerstr + ')']);
-                sortNumbers();
+                numbers = sortList(numbers);
             }
         }
     }
@@ -419,11 +317,14 @@ function solveAddSub(){
 
 function findResult(){
     lastlength = 0;
-    solveDivisions();
-    solveMultiplications();
-    solveAddSub();
-    sortOperators();
-    solveDivisions();
+    if(symlist){
+        solveDivisions();
+        solveMultiplications();
+        solveAddSub();
+        symlist = sortList(symlist);
+        findDivisions()
+        solveDivisions();
+    }
 }
 
 //Process Incoming Data for image
@@ -454,11 +355,12 @@ function processdata(data){
         'height':sizey,
         'background-image':'url(' + URL.createObjectURL(tmp) + ')'
     });
-    digitDraw();
-    //symbolDraw();
-    sortDigits();
+    drawList(numlist);
+    drawList(symlist);
+    numlist = sortList(numlist);
     findNumbers();
-    sortOperators();
+    symlist = sortList(symlist);
+    findDivisions()
     findResult();
     setresults();
     $('.num-box').on('click',function(){

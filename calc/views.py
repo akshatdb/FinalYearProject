@@ -10,6 +10,7 @@ import json
 
 from .basiccal import findbasic
 from .basiccal import learn_model
+from .lineareq import findlinear
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
 
@@ -41,7 +42,7 @@ def process(request):
         	if process_type == 0:
         		msg = findbasic(str(data.image)) 
         	elif process_type == 1:
-        		msg = form
+        		msg = findlinear(str(data.image))
         	else:
         		msg = process_type
     return JsonResponse(msg)

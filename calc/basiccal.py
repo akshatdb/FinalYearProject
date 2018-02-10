@@ -67,6 +67,7 @@ def detect_test_dnn(img,xr,yr):
 	imgb = mnist_scale(img,xr,yr)
 	if imgb is None:
 		return -1
+	imgb = imgb/255
 	with graph.as_default():
 		out = model.predict(imgb).reshape(n_classes)
 	return np.argmax(out)
@@ -78,6 +79,7 @@ def div_test_dnn(img):
 	img = np.asarray(img, dtype=np.uint8)
 	img = img.reshape((28, 28, 1)).astype('float32')
 	img = np.array([img])
+	img = img/255
 	with graphdiv.as_default():
 		out = modeldiv.predict(img).reshape(n_classes)
 	return np.argmax(out)
@@ -95,11 +97,13 @@ def scale_down(img):
 	img = np.asarray(img, dtype=np.uint8)
 	return img, y, x
 
+
 def preprocess(img):
 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,255,76)
 	return img
 
 def preprocess_num(img):
+
 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,5,6)
 	return img
 
@@ -108,6 +112,7 @@ def preprocess_drop(img):
  	img = cv2.blur(img,(2,2))
  	ret, img = cv2.threshold(img,img.mean(),255,cv2.THRESH_BINARY)
  	img = cv2.erode(img,kernel,1)
+ 	cv2.imwrite('asd.jpg',img)
 	return img
 
 def detect(img):

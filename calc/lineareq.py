@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from scipy.io import loadmat,savemat
+from scipy.io import loadmat
 from keras.models import load_model
 from PIL import Image
 import os
@@ -8,15 +8,33 @@ from django.conf import settings
 import tensorflow as tf
 im_path = os.path.join(settings.BASE_DIR, 'media')
 abs_path = os.path.join(settings.BASE_DIR, 'ai')
-global modeld, graphd
-global modela, grapha
+global model, graph
 global modeldiv, graphdiv
-global modeldic, graphdic
 global imgx,imgy
 blankim = np.zeros((28,28))
 kernel = np.ones((2,2),np.uint8)
 
-classes = {
+digits = {
+	0:'0',
+	1:'1',
+	2:'2',
+	3:'3',
+	4:'4',
+	5:'5',
+	6:'6',
+	7:'7',
+	8:'8',
+	9:'9',
+	10:'a',
+	11:'b',
+	12:'c',
+	13:'x',
+	14:'y',
+	15:'z',
+	16:'+',
+	17:'-',
+}
+alpha = {
 	0:'0',
 	1:'1',
 	2:'2',
@@ -30,11 +48,6 @@ classes = {
 	10:'x',
 	11:'+',
 	12:'-',
-	13:'a',
-	14:'b',
-	15:'c',
-	16:'y',
-	17:'z',
 }
 revclasses = {
 	'0':0,
@@ -50,25 +63,20 @@ revclasses = {
 	'x':10,
 	'+':11,
 	'-':12,
-	'a':13,
-	'A':13,
-	'b':14,
-	'B':14,
-	'c':15,
-	'C':15,
-	'y':16,
-	'y':16,
-	'z':17,
-	'Z':17,
 }
-
-def mnist_scale(img,xr,yr):
-    x = int(28*xr)
-    y = int(28*yr)
-    if x==0 or y==0:
+def mnist_scale(img,xr,yr,a):
+    x = int(a*xr)
+    y = int(a*yr)
+    if x<=0:
     	return None
-    xg = (28-x)/2
-    yg = (28-y)/2
+    elif y<=0:
+    	y = 1
+    if x>28:
+    	x = 28
+    if y>28:
+    	y = 28
+    xg = (a-x)/2
+    yg = (a-y)/2
     img = Image.fromarray(img)
     img = img.resize((x,y),Image.BICUBIC)
     img = np.asarray(img, dtype=np.uint8)
@@ -78,31 +86,24 @@ def mnist_scale(img,xr,yr):
     imgb = np.array([imgb])
     return imgb
 
-def digit_test_dnn(img,xr,yr):
+def conf_test_dnn(img,xr,yr):
 	n_classes = 13
-	imgb = mnist_scale(img,xr,yr)
+	imgb = mnist_scale(img,xr,yr,30)
 	if imgb is None:
 		return -1
+	imgb = imgb/255
+	with graphc.as_default():
+		out = modelc.predict(imgb).reshape(n_classes)
+	return np.argmax(out)
+
+def char_test_dnn(img,xr,yr):
+	n_classes = 18
+	imgb = mnist_scale(img,xr,yr,28)
+	if imgb is None:
+		return -1
+	imgb = imgb/255
 	with graphd.as_default():
 		out = modeld.predict(imgb).reshape(n_classes)
-	return np.argmax(out)
-
-def alpha_test_dnn(img,xr,yr):
-	n_classes = 5
-	imgb = mnist_scale(img,xr,yr)
-	if imgb is None:
-		return -1
-	with grapha.as_default():
-		out = modela.predict(imgb).reshape(n_classes)
-	return np.argmax(out)
-
-def dic_test_dnn(img,xr,yr):
-	n_classes = 2
-	imgb = mnist_scale(img,xr,yr)
-	if imgb is None:
-		return -1
-	with graphdic.as_default():
-		out = modeldic.predict(imgb).reshape(n_classes)
 	return np.argmax(out)
 
 def div_test_dnn(img):
@@ -112,6 +113,7 @@ def div_test_dnn(img):
 	img = np.asarray(img, dtype=np.uint8)
 	img = img.reshape((28, 28, 1)).astype('float32')
 	img = np.array([img])
+	img = img/255
 	with graphdiv.as_default():
 		out = modeldiv.predict(img).reshape(n_classes)
 	return np.argmax(out)
@@ -129,10 +131,13 @@ def scale_down(img):
 	img = np.asarray(img, dtype=np.uint8)
 	return img, y, x
 
+
 def preprocess(img):
 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,255,76)
 	return img
+
 def preprocess_num(img):
+
 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,5,6)
 	return img
 
@@ -141,6 +146,7 @@ def preprocess_drop(img):
  	img = cv2.blur(img,(2,2))
  	ret, img = cv2.threshold(img,img.mean(),255,cv2.THRESH_BINARY)
  	img = cv2.erode(img,kernel,1)
+ 	cv2.imwrite('asd.jpg',img)
 	return img
 
 def detect(img):
@@ -189,44 +195,39 @@ def recognize(img, contours):
 			numimg = crop_img[b:b+d,a:a+c]
 			xr = float(c)/(c+d)
 			yr = float(d)/(c+d)
-			if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/14 and d<=h/14)):
+			if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/20 and d<=h/20)):
 				continue
-			num = dic_test_dnn(numimg,xr,yr)
-			if num != -1:
-				if num == 1:
-					ans = digit_test_dnn(numimg,xr,yr)
-				elif num == 0:
-					ans = 13 + alpha_test_dnn(numimg,xr,yr)
-				result.update({i:{'val':classes[ans],'x':(float(x+a)/imgx),'y':(float(y+b)/imgy),'w':(float(c)/imgx),'h':(float(d)/imgy)}})
-				i = i + 1
+			num = char_test_dnn(numimg,xr,yr)
+			if (num<9 or num == 13 or num == 16 or num == 17):
+				num = conf_test_dnn(numimg,xr,yr)
+				print num
+				num = alpha[num]
+			else:
+				num = digits[num]
+			result.update({i:{'val':num,'x':(float(x+a)/imgx),'y':(float(y+b)/imgy),'w':(float(c)/imgx),'h':(float(d)/imgy)}})
+			i = i + 1
 	return result
 
-def initd():
-	modeld = load_model(abs_path + '/doublea.h5')
+def init_conf():
+	modelc = load_model(abs_path + '/digits.h5')
+	modelc.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
+	graphc = tf.get_default_graph()
+	return modelc, graphc
+def init_char():
+	modeld = load_model(abs_path + '/all.h5')
 	modeld.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
 	graphd = tf.get_default_graph()
 	return modeld, graphd
-def inita():
-	modela = load_model(abs_path + '/alphat.h5')
-	modela.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
-	grapha = tf.get_default_graph()
-	return modela, grapha
 def initdiv():
-	modeldiv = load_model(abs_path + '/dnn_params_div.h5')
+	modeldiv = load_model(abs_path + '/divider.h5')
 	modeldiv.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
 	graphdiv = tf.get_default_graph()
 	return modeldiv, graphdiv
-def initdic():
-	modeldic = load_model(abs_path + '/dica.h5')
-	modeldic.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
-	graphdic = tf.get_default_graph()
-	return modeldic, graphdic
 
-modeld,graphd = initd()
-modela,grapha = inita()
+modelc,graphc = init_conf()
+modeld,graphd = init_char()
 modeldiv, graphdiv = initdiv()
-modeldic, graphdic = initdic()
-def find(img_url):
+def findlinear(img_url):
 	global imgx,imgy
 	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
 	image,imgx,imgy = scale_down(image)
@@ -277,12 +278,7 @@ def learn_model(imgurl,x,y,w,h,val):
 		msg = 'unsupported value'
 		val = -1
 	if val!=-1:
-		if val>12:
-			learnmat('alphanew.mat',imgx,val-13)
-			learnmat('dicnew.mat',imgx,0)
-		else:
-			learnmat('digitnew.mat',imgx,val)
-			learnmat('dicnew.mat',imgx,1)
+		learnmat('digitsnew.mat',imgx,val)
 	else:
 		learnmat('divnew.mat',imgx,0)
 	return msg
