@@ -71,12 +71,14 @@ def mnist_scale(img,xr,yr,a):
     	return None
     elif y<=0:
     	y = 1
-    if x>28:
-    	x = 28
-    if y>28:
-    	y = 28
+    if x>=28:
+    	x = 27
+    if y>=28:
+    	y = 27
+    print x,y
     xg = (a-x)/2
     yg = (a-y)/2
+    print xg,yg
     img = Image.fromarray(img)
     img = img.resize((x,y),Image.BICUBIC)
     img = np.asarray(img, dtype=np.uint8)

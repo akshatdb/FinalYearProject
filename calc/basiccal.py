@@ -112,7 +112,6 @@ def preprocess_drop(img):
  	img = cv2.blur(img,(2,2))
  	ret, img = cv2.threshold(img,img.mean(),255,cv2.THRESH_BINARY)
  	img = cv2.erode(img,kernel,1)
- 	cv2.imwrite('asd.jpg',img)
 	return img
 
 def detect(img):

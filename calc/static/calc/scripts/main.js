@@ -52,113 +52,46 @@ function sortList(slist){
     });
     return slist
 }
-function findNumbers(){
-    c = -1;
-    for(var i=0; i<numlist.length; i++)
+
+function findNumbers()
+{
+    t = 0;
+    state = 0;
+    c = symlist[0][5];
+    for(var i = 0; i < symlist.length; i++)
     {
-        if(numlist[i][5]!=c )
+        if (Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 0)
         {
-            c = numlist[i][5];
-            xptr = numlist[i][0];
-            yptr = numlist[i][1];
-            wptr = numlist[i][2];
-            hptr = numlist[i][3];
-            vptr = numlist[i][4];
+            num = Number(symlist[i][4]);
+            start = i;
+            state = 1;
+            c = symlist[i][5];
         }
-        else{
-            yptr = numlist[i][1]<yptr?numlist[i][1]:yptr;
-            wptr = (numlist[i][0]+numlist[i][2]) - xptr;
-            vptr = vptr*10 + numlist[i][4];
-        }
-        if((i+1)>= numlist.length || numlist[i+1][5]!=c || (numlist[i+1][0]-numlist[i+1][3]/3 > (xptr + wptr +hptr/3)))
+        else if((Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 1) && symlist[i][5]==c && symlist[i][0] < (symlist[i-1][0]+symlist[i-1][2]+symlist[i-1][3]))
         {
-          numbers.push([xptr,yptr,wptr,hptr,vptr,1,String(vptr)]);
-          c = -1;
+            num = num*10 + Number(symlist[i][4]);
+            symlist[start][4] = num;
+            symlist[start][2] = symlist[i][0]+symlist[i][2]-symlist[start][0];
+            symlist[start][3] = (symlist[i][1]+symlist[i][3])>(symlist[start][1]+symlist[start][3])?(symlist[i][1]+symlist[i][3]):(symlist[start][1]+symlist[start][3]);
+            symlist[start][1] = symlist[i][1]<symlist[start][1]?symlist[i][1]:symlist[start][1];
+            symlist[start][3] = symlist[start][3] - symlist[start][1];           
+            symlist.splice(i,1);
+            i = i - 1;
         }
+        else if (state = 1)
+        {
+            state = 0;
+            num = 0;
+            if((Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 1) && symlist[i][5]==c)
+                i = i - 1;
+            t++;
+            if (t>20)
+                break;
+        }    
     }
 }
 
-function findLeftRight(i)
-{
-    xs = symlist[i][0];
-    ys = symlist[i][1];
-    ws = symlist[i][2];
-    hs = symlist[i][3];
-    cleft = 0;
-    cright = 0;
-    for(var j = 0; j < numbers.length; j++)
-    {
-        yn = numbers[j][1];
-        hn = numbers[j][3];
-        if(( yn-hs/3 < ys ) && ( (yn+hn+hs/3) > (ys+hs) ) )
-        {
-            xn = numbers[j][0];
-            wn = numbers[j][2];
-            if( (xn+wn-ws/3) < (xs) && (xn+wn+ws+ws) > (xs) )
-            {
-                leftOp = j;
-                cleft++;
-            }
-            else if( (xn+ws/3) > (xs+ws) && (xn) < (xs+ws+ws+ws) )
-            {
-                rightOp = j;
-                cright++;
-            }
-        }
-    }
-    if(cleft == 1 && cright == 1)
-        return [true,leftOp,rightOp];
-    else
-        return [false,-1,-1];
-}
-function findAboveBelow(i)
-{
-    xs = symlist[i][0];
-    ys = symlist[i][1];
-    ws = symlist[i][2];
-    hs = symlist[i][3];
-    cnum = 0;
-    cden = 0;
-    for(var j = 0; j < numbers.length; j++)
-    {
-        xn = numbers[j][0];
-        wn = numbers[j][2];
-        if(( xn > (xs-ws/2) ) && ( (xn+wn) < (xs+ws+ws/2) ) )
-        {
-         
-            hn = numbers[j][3];
-            yn = numbers[j][1];
-            if( ( yn > (ys-ws-ws) ) && ( (yn+hn) < (ys+hs) ) )
-            {
-                numerator = j;
-                cnum++;
-            }
-            else if( ( yn > ys ) && ( (yn+hn) < (ys+ws+ws)))
-            {
-                denominator = j;
-                cden++;
-            }
-        }
-    }
-    if(cnum == 1 && cden == 1)
-        return [true,numerator,denominator];
-    else
-        return [false,-1,-1];
-}
-function findDivisions()
-{
-   if(symlist)
-   for (var i=0;i < symlist.length;i++)
-   {
-        if(symlist[i][4] == '-')
-        {
-            if(findAboveBelow(i)[0])
-            {
-                symlist[i][4] = '/';
-            }
-        }
-   }
-}
+
 //Calculate scales for recieved image
 function scaleSizes(){
     wh = $(window).height();
@@ -187,143 +120,213 @@ function drawList(listl)
     }
 }
 
-function solveDivisions(){
+function findEquals()
+{
     for(var i = 0; i < symlist.length; i++)
     {
-        if(symlist[i][4] == '/')
+        if(i < symlist.length-1 && symlist[i][4]=='-' && symlist[i+1][4]=='-')
         {
-            xs = symlist[i][0];
-            ys = symlist[i][1];
-            ws = symlist[i][2];
-            hs = symlist[i][3];
-            [foundAboveBelow,numerator,denominator] = findAboveBelow(i);
-            if(foundAboveBelow)
-            {
-                if(denominator == 0)
+            xa = symlist[i][0];
+            ya = symlist[i][1];
+            wa = symlist[i][2];
+            ha = symlist[i][3];
+            xb = symlist[i+1][0];
+            yb = symlist[i+1][1];
+            wb = symlist[i+1][2];
+            hb = symlist[i+1][3];
+            if((ya < yb && ya+ha < yb+hb) || (yb < ya && yb+hb < ya+ha)){
+                if(xa-wa < xb && xa+wa+wa > xb+wb)
                 {
-                    infinityFlag = 1;
-                    div = -1;
+                    symlist[i][4] = '=';
+                    symlist.splice(i+1,1);
                 }
-                else{
-                    div = (1.0*numbers[numerator][4])/numbers[denominator][4];
-                    divstr = numbers[numerator][6] + '&#247;' + numbers[denominator][6];             
-                }
-                newy = numbers[numerator][1];
-                newh = numbers[denominator][1]+numbers[denominator][3] - newy;
-                newx = xs;
-                neww = ws;
-                if(numerator>denominator)
-                {
-                    numbers.splice(numerator,1);
-                    numbers.splice(denominator,1);
-                }
-                else
-                {
-                    numbers.splice(denominator,1);
-                    numbers.splice(numerator,1);
-                }
-                symlist.splice(i,1);
-                i= i -1;
-                numbers.push([newx,newy,neww,newh,div,1,'(' + divstr + ')']);
-                numbers = sortList(numbers);
             }
-
         }
-
     }
 }
-function solveMultiplications(){
-    for(var i = 0; i < symlist.length ; i++)
+
+function findAboveBelow(i)
+{
+    xs = symlist[i][0];
+    ys = symlist[i][1];
+    ws = symlist[i][2];
+    hs = symlist[i][3];
+    cnum = 0;
+    cden = 0;
+    for(var j = 0; j < symlist.length; j++)
     {
-        if(symlist[i][4] == 'x')
+        if(symlist[j][4] == Number(symlist[j][4]))
         {
-            xs = symlist[i][0];
-            ys = symlist[i][1];
-            ws = symlist[i][2];
-            hs = symlist[i][3];
-            [foundLeftRight, leftOp, rightOp] = findLeftRight(i);
-            if(foundLeftRight)
+            xn = symlist[j][0];
+            wn = symlist[j][2];
+            if(( xn > (xs-ws/2) ) && ( (xn+wn) < (xs+ws+ws/2) ) )
             {
-                product = numbers[leftOp][4] * numbers[rightOp][4];
-                productstr = numbers[leftOp][6] + 'x' + numbers[rightOp][6];
-                newy = numbers[leftOp][1]<numbers[rightOp][1]?numbers[leftOp][1]:numbers[rightOp][1];
-                newx = numbers[leftOp][0];
-                neww = numbers[rightOp][0]+numbers[rightOp][2] - newx;
-                newh = (numbers[leftOp][1]+numbers[leftOp][3])>(numbers[rightOp][1]+numbers[rightOp][3])?(numbers[leftOp][1]+numbers[leftOp][3]):(numbers[rightOp][1]+numbers[rightOp][3]);
-                newh = newh - newy;
-                if(leftOp>rightOp)
+         
+                hn = symlist[j][3];
+                yn = symlist[j][1];
+                if( ( yn > (ys-ws-ws) ) && ( (yn+hn) < (ys+hs) ) )
                 {
-                    numbers.splice(leftOp,1);
-                    numbers.splice(rightOp,1);
+                    numerator = j;
+                    cnum++;
                 }
-                else
+                else if( ( yn > ys ) && ( (yn+hn) < (ys+ws+ws)))
                 {
-                    numbers.splice(rightOp,1);
-                    numbers.splice(leftOp,1);
+                    denominator = j;
+                    cden++;
                 }
-                symlist.splice(i,1);
-                i = i -1;
-                numbers.push([newx,newy,neww,newh,product,1,'(' + productstr + ')']);
-                numbers = sortList(numbers);
             }
         }
     }
+    if(cnum == 1 && cden == 1)
+        return [true,numerator,denominator];
+    else
+        return [false,-1,-1];
 }
-function solveAddSub(){
-    for(var i = 0; i < symlist.length ; i++)
+
+function solveUpDown(funcList)
+{
+    for(var i = 0; i < funcList.length; i++)
     {
-        if(symlist[i][4] == '+' || symlist[i][4] == '-')
+        symlist[funcList[i][0]][4] = symlist[funcList[i][0]][4]/symlist[funcList[i][2]][4];
+        symlist[funcList[i][0]][0] = symlist[funcList[i][1]][0];
+        symlist[funcList[i][0]][2] = symlist[funcList[i][1]][2];
+        symlist[funcList[i][0]][1] = symlist[funcList[i][0]][1];
+        symlist[funcList[i][0]][3] = symlist[funcList[i][2]][1]+symlist[funcList[i][2]][3]-symlist[funcList[i][0]][1];
+        symlist.splice(funcList[i][1],1);
+        for(var j = i;j< funcList.length; j++)
         {
-            xs = symlist[i][0];
-            ys = symlist[i][1];
-            ws = symlist[i][2];
-            hs = symlist[i][3];
-            [foundLeftRight, leftOp, rightOp] = findLeftRight(i);
-            if(foundLeftRight)
-            {
-                if(symlist[i][4]=='+')
-                {
-                    answer = numbers[leftOp][4] + numbers[rightOp][4];
-                    answerstr = numbers[leftOp][6] + '+' + numbers[rightOp][6];
-                }
-                else
-                {
-                    answer = numbers[leftOp][4] - numbers[rightOp][4];
-                    answerstr = numbers[leftOp][4] + '-' + numbers[rightOp][4];
-                }
-                newy = numbers[leftOp][1]<numbers[rightOp][1]?numbers[leftOp][1]:numbers[rightOp][1];
-                newx = numbers[leftOp][0];
-                neww = numbers[rightOp][0]+numbers[rightOp][2] - newx;
-                newh = (numbers[leftOp][1]+numbers[leftOp][3])>(numbers[rightOp][1]+numbers[rightOp][3])?(numbers[leftOp][1]+numbers[leftOp][3]):(numbers[rightOp][1]+numbers[rightOp][3]);
-                newh = newh - newy;
-                if(leftOp>rightOp)
-                {
-                    numbers.splice(leftOp,1);
-                    numbers.splice(rightOp,1);
-                }
-                else
-                {
-                    numbers.splice(rightOp,1);
-                    numbers.splice(leftOp,1);
-                }
-                symlist.splice(i,1);
-                i = i - 1;
-                numbers.push([newx,newy,neww,newh,answer,1, '(' + answerstr + ')']);
-                numbers = sortList(numbers);
-            }
+                if(funcList[j][0]>funcList[i][1])
+                    funcList[j][0]--;
+                if(funcList[j][1]>funcList[i][1])
+                    funcList[j][1]--;
+                if(funcList[j][2]>funcList[i][1])
+                    funcList[j][2]--;
+        }
+        symlist.splice(funcList[i][2],1);
+        for(var j = i;j< funcList.length; j++)
+        {
+                if(funcList[j][0]>funcList[i][1])
+                    funcList[j][0]--;
+                if(funcList[j][1]>funcList[i][1])
+                    funcList[j][1]--;
+                if(funcList[j][2]>funcList[i][1])
+                    funcList[j][2]--;
         }
     }
 }
 
+function solveLeftRight(funcList)
+{
+    for(var i = 0; i < funcList.length; i++)
+    {
+        switch(symlist[funcList[i][1]][4])
+        {
+            case '+':
+                symlist[funcList[i][0]][4] = symlist[funcList[i][0]][4]+symlist[funcList[i][2]][4];
+                break;
+            case '-':
+                symlist[funcList[i][0]][4] = symlist[funcList[i][0]][4]-symlist[funcList[i][2]][4];
+                break;
+            case 'x':
+                symlist[funcList[i][0]][4] = symlist[funcList[i][0]][4]*symlist[funcList[i][2]][4];
+        }
+        symlist[funcList[i][0]][0] = symlist[funcList[i][0]][0];
+        symlist[funcList[i][0]][2] = symlist[funcList[i][2]][0]+symlist[funcList[i][2]][2]-symlist[funcList[i][0]][0];
+        symlist[funcList[i][0]][1] = symlist[funcList[i][0]][1]<symlist[funcList[i][2]][1]?symlist[funcList[i][0]][1]:symlist[funcList[i][2]][1];
+        symlist[funcList[i][0]][3] = (symlist[funcList[i][0]][1]+symlist[funcList[i][0]][3])>(symlist[funcList[i][2]][1]+symlist[funcList[i][2]][3])?(symlist[funcList[i][0]][1]+symlist[funcList[i][0]][3]-symlist[funcList[i][0]][1]):(symlist[funcList[i][2]][1]+symlist[funcList[i][2]][3]-symlist[funcList[i][0]][1]);
+        symlist.splice(funcList[i][1],2);
+        for(var j = 0;j< funcList.length; j++)
+        {
+            if(j!=i)
+            {
+                if(funcList[j][0]>funcList[i][2])
+                    funcList[j][0]=funcList[j][0]-2;
+                if(funcList[j][1]>funcList[i][2])
+                    funcList[j][1]=funcList[j][1]-2;
+                if(funcList[j][2]>funcList[i][2])
+                    funcList[j][2]=funcList[j][2]-2;
+            }
+        }
+
+    }
+}
+
+function findDivisions()
+{
+    divlist = [];
+    for(var i=0;i < symlist.length; i++ )
+    {
+        [check, numerator, denominator] = findAboveBelow(i);
+        if(check)
+        {
+            symlist[i][4] = '/';
+            if(denominator!=0)
+                divlist.push([numerator,i,denominator]);
+            else
+                infinityFlag = 1;
+        }
+    }
+    return divlist;
+}
+
+function findMultiplications()
+{
+    mullist = [];
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(symlist[i][4]=='x')
+        {
+            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]))
+                mullist.push([i-1,i,i+1]);
+            else if(i-1<0 || i+1 >= symlist.length)
+                errFlag = 1;
+        }
+    }
+    return mullist;
+}
+
+function findAddSubs()
+{
+    mullist = [];
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(symlist[i][4]=='+')
+        {
+            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]))
+                mullist.push([i-1,i,i+1]);
+            else if(i-1<0 || i+1 >= symlist.length)
+                errFlag = 1;
+        }
+        if(symlist[i][4]=='-')
+        {
+            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]))
+                mullist.push([i-1,i,i+1]);
+        }
+    }
+    return mullist;
+}
+
+function opLength(ml)
+{
+    count = 0;
+    for(var i = 0; i < ml.length ; i++)
+    {
+        if(ml[i][4]=='/'||ml[i][4]=='+'||ml[i][4]=='-'||ml[i][4]=='x')
+            count++;
+    }
+    if(count>0)
+        return true;
+    else 
+        return false;
+}
 function findResult(){
-    lastlength = 0;
-    if(symlist){
-        solveDivisions();
-        solveMultiplications();
-        solveAddSub();
-        symlist = sortList(symlist);
-        findDivisions()
-        solveDivisions();
+    if(opLength(symlist)){
+        divlist = findDivisions();
+        solveUpDown(divlist);
+        divlist = findMultiplications();
+        solveLeftRight(divlist);
+        divlist = findAddSubs();
+        solveLeftRight(divlist);
     }
 }
 
@@ -343,10 +346,7 @@ function processdata(data){
             wa = data[key]['w']*sizex+(data[key]['w']*sizex)/3;
             ha = data[key]['h']*sizey+(data[key]['h']*sizey)/3;
             va = data[key]['val'];
-            if(Number(va) <= 9)
-                numlist.push([xa,ya,wa,ha,Number(va),Number(key)]);
-            else
-                symlist.push([xa,ya,wa,ha,va,Number(key)])
+            symlist.push([xa,ya,wa,ha,va,Number(key),0]);
         }
     }
     var tmp = $('#file').prop('files')[0];
@@ -355,24 +355,21 @@ function processdata(data){
         'height':sizey,
         'background-image':'url(' + URL.createObjectURL(tmp) + ')'
     });
-    drawList(numlist);
-    drawList(symlist);
-    numlist = sortList(numlist);
-    findNumbers();
     symlist = sortList(symlist);
-    findDivisions()
+    drawList(symlist);
+    findEquals();
+    findNumbers();
     findResult();
-    setresults();
     $('.num-box').on('click',function(){
         $(this).addClass('selected-num');
         val = prompt("Please enter correct value");
         $(this).text(val);
         i = $(this).data('id');
         change_list[clen] = {
-        	'x':numlist[i][0]/sizex,
-        	'y':numlist[i][1]/sizey,
-        	'w':numlist[i][2]/sizex,
-        	'h':numlist[i][3]/sizey,
+        	'x':symlist[i][0]/sizex,
+        	'y':symlist[i][1]/sizey,
+        	'w':symlist[i][2]/sizex,
+        	'h':symlist[i][3]/sizey,
         	'iname':imagename,
         	'val':val
         };
