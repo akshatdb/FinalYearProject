@@ -2,13 +2,13 @@
 var imagename,osizex,osizey,change_list = {},clen = 0,numbers = [],numlist = [],symlist = [],result = 0;
 
 
-function setresults(){
+function setResult(){
     result = 0;
     resultstr = '';
-    for (var i = 0;i < numbers.length; i++)
+    for (var i = 0;i < symlist.length; i++)
     {
-        result = result + numbers[i][4];
-        resultstr = resultstr + '+' + numbers[i][6];
+        result = result + Number(symlist[i][4]);
+        resultstr = resultstr + '+' + symlist[i][4];
     }
     $('.answer').html(resultstr.substr(1) + ' = ' + result);
 }
@@ -55,7 +55,6 @@ function sortList(slist){
 
 function findNumbers()
 {
-    t = 0;
     state = 0;
     c = symlist[0][5];
     for(var i = 0; i < symlist.length; i++)
@@ -69,6 +68,7 @@ function findNumbers()
         }
         else if((Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 1) && symlist[i][5]==c && symlist[i][0] < (symlist[i-1][0]+symlist[i-1][2]+symlist[i-1][3]))
         {
+
             num = num*10 + Number(symlist[i][4]);
             symlist[start][4] = num;
             symlist[start][2] = symlist[i][0]+symlist[i][2]-symlist[start][0];
@@ -80,13 +80,12 @@ function findNumbers()
         }
         else if (state = 1)
         {
+            if((Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 1) && symlist[i][5]!=c)
+            {
+               i = i - 1;  
+            }
             state = 0;
             num = 0;
-            if((Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 1) && symlist[i][5]==c)
-                i = i - 1;
-            t++;
-            if (t>20)
-                break;
         }    
     }
 }
@@ -222,32 +221,28 @@ function solveLeftRight(funcList)
         switch(symlist[funcList[i][1]][4])
         {
             case '+':
-                symlist[funcList[i][0]][4] = symlist[funcList[i][0]][4]+symlist[funcList[i][2]][4];
+                symlist[funcList[i][0]][4] = Number(symlist[funcList[i][0]][4])+Number(symlist[funcList[i][2]][4]);
                 break;
             case '-':
-                symlist[funcList[i][0]][4] = symlist[funcList[i][0]][4]-symlist[funcList[i][2]][4];
+                symlist[funcList[i][0]][4] = Number(symlist[funcList[i][0]][4])-Number(symlist[funcList[i][2]][4]);
                 break;
             case 'x':
-                symlist[funcList[i][0]][4] = symlist[funcList[i][0]][4]*symlist[funcList[i][2]][4];
+                symlist[funcList[i][0]][4] = Number(symlist[funcList[i][0]][4])*Number(symlist[funcList[i][2]][4]);
         }
         symlist[funcList[i][0]][0] = symlist[funcList[i][0]][0];
         symlist[funcList[i][0]][2] = symlist[funcList[i][2]][0]+symlist[funcList[i][2]][2]-symlist[funcList[i][0]][0];
         symlist[funcList[i][0]][1] = symlist[funcList[i][0]][1]<symlist[funcList[i][2]][1]?symlist[funcList[i][0]][1]:symlist[funcList[i][2]][1];
         symlist[funcList[i][0]][3] = (symlist[funcList[i][0]][1]+symlist[funcList[i][0]][3])>(symlist[funcList[i][2]][1]+symlist[funcList[i][2]][3])?(symlist[funcList[i][0]][1]+symlist[funcList[i][0]][3]-symlist[funcList[i][0]][1]):(symlist[funcList[i][2]][1]+symlist[funcList[i][2]][3]-symlist[funcList[i][0]][1]);
         symlist.splice(funcList[i][1],2);
-        for(var j = 0;j< funcList.length; j++)
+        for(var j = i;j< funcList.length; j++)
         {
-            if(j!=i)
-            {
-                if(funcList[j][0]>funcList[i][2])
+                if(funcList[j][0]>funcList[i][2]-2)
                     funcList[j][0]=funcList[j][0]-2;
-                if(funcList[j][1]>funcList[i][2])
+                if(funcList[j][1]>funcList[i][2]-2)
                     funcList[j][1]=funcList[j][1]-2;
-                if(funcList[j][2]>funcList[i][2])
+                if(funcList[j][2]>funcList[i][2]-2)
                     funcList[j][2]=funcList[j][2]-2;
-            }
         }
-
     }
 }
 
@@ -320,7 +315,7 @@ function opLength(ml)
         return false;
 }
 function findResult(){
-    if(opLength(symlist)){
+    while(opLength(symlist)){
         divlist = findDivisions();
         solveUpDown(divlist);
         divlist = findMultiplications();
@@ -360,6 +355,7 @@ function processdata(data){
     findEquals();
     findNumbers();
     findResult();
+    setResult();
     $('.num-box').on('click',function(){
         $(this).addClass('selected-num');
         val = prompt("Please enter correct value");
