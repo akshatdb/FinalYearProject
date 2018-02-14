@@ -1,8 +1,9 @@
 //Handle Changes
-var imagename,osizex,osizey,change_list = {},clen = 0,numbers = [],numlist = [],symlist = [],result = 0;
+var imagename,osizex,osizey,change_list = {},clen = 0,numbers = [],numlist = [],symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [];
 
 
-function setResult(){
+function setResult()
+{
     result = 0;
     resultstr = '';
     for (var i = 0;i < symlist.length; i++)
@@ -12,36 +13,43 @@ function setResult(){
     }
     $('.answer').html(resultstr.substr(1) + ' = ' + result);
 }
+
+function setEqResults(ans,X)
+{
+    result = '';
+    for(var i = 0; i < ans.length; i++)
+    {
+        result = result + ',' + X[i] + ' = ' + ans[i].toFixed(4);
+    }
+    $('.answer').html(result.substr(1));
+}
 //find numbers in the image
 function sortList(slist){
     slist.sort(function(a, b) {
-        //sort by x, secondary by y
         return a[1]-b[1];
     });
     for(var i = 0;i< slist.length;i++)
     {
        slist[i][5] = i; 
     }
-    for(var i = 0; i<slist.length; i++)
+    tag = symlist[0][5];
+    miny = symlist[0][1];
+    maxy = symlist[0][1]+symlist[0][3];
+    padding = symlist[0][3]/2;
+    for(var i = 1; i<slist.length; i++)
     {
-        curr = slist[i];
-        xc = curr[0];
-        yc = curr[1];
-        wc = curr[2];
-        hc = curr[3];
-        for(var j = 0; j<slist.length; j++)
+        if(symlist[i][1] > miny-padding && ((symlist[i][1]+symlist[i][3]) < maxy+padding))
         {
-            if(slist[j][5]!=curr)
-            {
-                xp = slist[j][0];
-                yp = slist[j][1];
-                wp = slist[j][2];
-                hp = slist[j][3];
-                if( ((yp + hp) < (yc + hc + hc/2)) && (yp > yc-hc/2))
-                {
-                            slist[j][5] = curr[5];
-                }
-            }
+            symlist[i][5] = tag;
+            miny = miny<symlist[i][1]?miny:symlist[i][1];
+            maxy = maxy>(symlist[i][1]+symlist[i][3])?maxy:(symlist[i][1]+symlist[i][3]);
+            padding = (maxy-miny)/2;
+        }
+        else{
+            tag = symlist[i][5];
+            miny = symlist[i][1];
+            maxy = symlist[i][1]+symlist[i][3];
+            padding = (maxy-miny)/2;
         }
     }
     slist.sort(function(a,b){
@@ -74,7 +82,7 @@ function findNumbers()
             symlist[start][2] = symlist[i][0]+symlist[i][2]-symlist[start][0];
             symlist[start][3] = (symlist[i][1]+symlist[i][3])>(symlist[start][1]+symlist[start][3])?(symlist[i][1]+symlist[i][3]):(symlist[start][1]+symlist[start][3]);
             symlist[start][1] = symlist[i][1]<symlist[start][1]?symlist[i][1]:symlist[start][1];
-            symlist[start][3] = symlist[start][3] - symlist[start][1];           
+            symlist[start][3] = symlist[start][3] - symlist[start][1];          
             symlist.splice(i,1);
             i = i - 1;
         }
@@ -119,6 +127,16 @@ function drawList(listl)
     }
 }
 
+function fixYs()
+{
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(symlist[i][4]=='y')
+        {
+            symlist[i][3] = symlist[i][3]/2;
+        }
+    }
+}
 function findEquals()
 {
     for(var i = 0; i < symlist.length; i++)
@@ -301,7 +319,7 @@ function findAddSubs()
     return mullist;
 }
 
-function opLength(ml)
+function countOp(ml)
 {
     count = 0;
     for(var i = 0; i < ml.length ; i++)
@@ -315,7 +333,7 @@ function opLength(ml)
         return false;
 }
 function findResult(){
-    while(opLength(symlist)){
+    while(countOp(symlist)){
         divlist = findDivisions();
         solveUpDown(divlist);
         divlist = findMultiplications();
@@ -325,6 +343,135 @@ function findResult(){
     }
 }
 
+
+function cutDownYs()
+{
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(symlist[i][4] == 'y')
+        {
+            symlist[i][3] = symlist[i][3]/2;
+        }
+    }
+}
+function countAlpha()
+{
+    charList = {'x':0,'y':0,'z':0,'a':0,'b':0,'c':0};
+    flag = 0;
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(symlist[i][4]=='a'||symlist[i][4]=='b'||symlist[i][4]=='c'||symlist[i][4]=='y')
+        {
+            charList[symlist[i][4]] = charList[symlist[i][4]] + 1;
+            flag = 1;
+            if(i-1>=0 && Number(symlist[i-1][4]) == symlist[i-1][4] && symlist[i-1][5] == symlist[i][5])
+                coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5]]);
+            else
+                coefficients.push([symlist[i][4],i,1]);
+        }
+        if(symlist[i][4]=='x')
+            if(symlist[i-1][4]=='+'||symlist[i-1][4]=='x'||symlist[i-1][4]=='-'||symlist[i+1][4]=='+'||symlist[i+1][4]=='x'||symlist[i+1][4]=='-')
+            {
+                charList[symlist[i][4]] = charList[symlist[i][4]] + 1;
+                flag = 1;
+                if(i-1>=0 && Number(symlist[i-1][4]) == symlist[i-1][4] && symlist[i-1][5] == symlist[i][5])
+                    coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5]]);
+                else
+                    coefficients.push([symlist[i][4],i,1]);
+            }    
+                
+    }
+    if (flag > 0)
+        return true;
+    return false;
+}
+
+function findLinearEquations()
+{
+    tmp = [];
+    c = symlist[0][5];
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(symlist[i][5]==c)
+            tmp.push(symlist[i]);
+        else
+        {
+            equationList.push(tmp);
+            tmp = [];
+            tmp.push(symlist[i]);
+            c = symlist[i][5];
+        }
+    }
+    if(tmp.length>0)
+        equationList.push(tmp);
+}
+
+function checkLinearEquations()
+{
+    varcount = 0;
+    count = equationList.length;
+    Object.keys(charList).forEach(function (key) { 
+        var value = charList[key]
+        if(value < equationList)
+            return false;
+        if(value > 0)
+        {
+            varlist[key] = varcount++;
+        }
+    });
+    if(varcount > equationList)
+        return false;
+    return true;
+}
+
+function eqTag(c)
+{
+    for(var i = 0; i < equationList.length; i++)
+    {
+        if(equationList[i][0][5]==c)
+            return i;
+    }
+}
+function getCoefficients()
+{
+    m = [];
+    n = [];
+    for(var i = 0;i < equationList.length; i++)
+    {
+        for(var j = 0; j < equationList.length; j++)
+            n.push(0);
+        m.push(n);
+        n = [];
+    }
+    for(var i = 0; i < coefficients.length; i++)
+    {
+        m[eqTag(coefficients[i][3])][varlist[coefficients[i][0]]] = m[eqTag(coefficients[i][3])][varlist[coefficients[i][0]]] + Number(coefficients[i][2]); 
+    }
+    return m;
+}
+
+function getConstants()
+{
+    m = [];
+    n = 0;
+    eq = -1;
+    for(var i = 0;i < equationList.length; i++)
+    {
+        for(var j = 0; j < equationList[i].length; j++)
+        {
+            if(!(isNaN(equationList[i][j][4])) && (j+1<equationList[i].length && Object.keys(varlist).indexOf(equationList[i][j+1][4]) < 0 ))  
+            {
+                n = n + eq*Number(equationList[i][j][4]);
+            }
+            else if(equationList[i][j][4] == '=')
+                eq = 1;
+        }
+        m.push([n]);
+        n = 0;
+        eq = -1;
+    }
+    return m;
+}
 //Process Incoming Data for image
 function processdata(data){
     osizex = sizex = data['image']['x'];
@@ -341,7 +488,7 @@ function processdata(data){
             wa = data[key]['w']*sizex+(data[key]['w']*sizex)/3;
             ha = data[key]['h']*sizey+(data[key]['h']*sizey)/3;
             va = data[key]['val'];
-            symlist.push([xa,ya,wa,ha,va,Number(key),0]);
+            symlist.push([xa,ya,wa,ha,va,Number(key)]);
         }
     }
     var tmp = $('#file').prop('files')[0];
@@ -350,12 +497,32 @@ function processdata(data){
         'height':sizey,
         'background-image':'url(' + URL.createObjectURL(tmp) + ')'
     });
-    symlist = sortList(symlist);
     drawList(symlist);
+    cutDownYs();
+    symlist = sortList(symlist);
     findEquals();
     findNumbers();
-    findResult();
-    setResult();
+    if(countAlpha())
+    {
+        findLinearEquations();
+        if(checkLinearEquations())
+        {
+            A = getCoefficients();
+            B = getConstants();
+            X = Object.keys(varlist);
+            ans = numeric.solve(A,B);
+            setEqResults(ans,X);
+            //solveLinearEquations();
+        }
+        else
+            console.log('invalid Equations');
+    }
+    else
+    {
+        console.log('what');
+        //findResult();
+        //setResult();
+    }
     $('.num-box').on('click',function(){
         $(this).addClass('selected-num');
         val = prompt("Please enter correct value");

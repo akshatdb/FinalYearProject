@@ -75,10 +75,8 @@ def mnist_scale(img,xr,yr,a):
     	x = 27
     if y>=28:
     	y = 27
-    print x,y
     xg = (a-x)/2
     yg = (a-y)/2
-    print xg,yg
     img = Image.fromarray(img)
     img = img.resize((x,y),Image.BICUBIC)
     img = np.asarray(img, dtype=np.uint8)
@@ -139,7 +137,6 @@ def preprocess(img):
 	return img
 
 def preprocess_num(img):
-
 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,5,6)
 	return img
 
@@ -201,7 +198,6 @@ def recognize(img, contours):
 			num = char_test_dnn(numimg,xr,yr)
 			if (num<9 or num == 13 or num == 16 or num == 17):
 				num = conf_test_dnn(numimg,xr,yr)
-				print num
 				num = alpha[num]
 			else:
 				num = digits[num]
