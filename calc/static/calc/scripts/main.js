@@ -35,21 +35,21 @@ function sortList(slist){
     tag = symlist[0][5];
     miny = symlist[0][1];
     maxy = symlist[0][1]+symlist[0][3];
-    padding = symlist[0][3]/2;
+    padding = 0.7*symlist[0][3];
     for(var i = 1; i<slist.length; i++)
     {
-        if(symlist[i][1] > miny-padding && ((symlist[i][1]+symlist[i][3]) < maxy+padding))
+        if(symlist[i][1] > miny-padding && ((symlist[i][1]+symlist[i][3]) < maxy+padding) && symlist[i][1] < (maxy-padding/4))
         {
             symlist[i][5] = tag;
             miny = miny<symlist[i][1]?miny:symlist[i][1];
             maxy = maxy>(symlist[i][1]+symlist[i][3])?maxy:(symlist[i][1]+symlist[i][3]);
-            padding = (maxy-miny)/2;
+            padding = 0.7*(maxy-miny);
         }
         else{
             tag = symlist[i][5];
             miny = symlist[i][1];
             maxy = symlist[i][1]+symlist[i][3];
-            padding = (maxy-miny)/2;
+            padding = 0.7*(maxy-miny);
         }
     }
     slist.sort(function(a,b){
@@ -488,7 +488,7 @@ function processdata(data){
             wa = data[key]['w']*sizex+(data[key]['w']*sizex)/3;
             ha = data[key]['h']*sizey+(data[key]['h']*sizey)/3;
             va = data[key]['val'];
-            symlist.push([xa,ya,wa,ha,va,Number(key)]);
+            symlist.push([xa,ya,wa,ha,va,Number(key),0]);
         }
     }
     var tmp = $('#file').prop('files')[0];
@@ -519,9 +519,8 @@ function processdata(data){
     }
     else
     {
-        console.log('what');
-        //findResult();
-        //setResult();
+        findResult();
+        setResult();
     }
     $('.num-box').on('click',function(){
         $(this).addClass('selected-num');
