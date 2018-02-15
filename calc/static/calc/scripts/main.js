@@ -1,5 +1,5 @@
 //Handle Changes
-var imagename,osizex,osizey,change_list = {},clen = 0,numbers = [],numlist = [],symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [];
+var imagename,osizex,osizey,change_list = {},clen = 0,symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [], backuplist;
 
 
 function setResult()
@@ -167,23 +167,23 @@ function findEquals()
 
 function findAboveBelow(i)
 {
-    xs = symlist[i][0];
-    ys = symlist[i][1];
-    ws = symlist[i][2];
-    hs = symlist[i][3];
-    cnum = 0;
-    cden = 0;
+    var xs = symlist[i][0];
+    var ys = symlist[i][1];
+    var ws = symlist[i][2];
+    var hs = symlist[i][3];
+    var cnum = 0;
+    var cden = 0;
     for(var j = 0; j < symlist.length; j++)
     {
         if(symlist[j][4] == Number(symlist[j][4]))
         {
-            xn = symlist[j][0];
-            wn = symlist[j][2];
+            var xn = symlist[j][0];
+            var wn = symlist[j][2];
             if(( xn > (xs-ws/2) ) && ( (xn+wn) < (xs+ws+ws/2) ) )
             {
          
-                hn = symlist[j][3];
-                yn = symlist[j][1];
+                var hn = symlist[j][3];
+                var yn = symlist[j][1];
                 if( ( yn > (ys-ws-ws) ) && ( (yn+hn) < (ys+hs) ) )
                 {
                     numerator = j;
@@ -273,7 +273,7 @@ function solveLeftRight(funcList)
 
 function findDivisions()
 {
-    divlist = [];
+    var divlist = [];
     for(var i=0;i < symlist.length; i++ )
     {
         [check, numerator, denominator] = findAboveBelow(i);
@@ -291,7 +291,7 @@ function findDivisions()
 
 function findMultiplications()
 {
-    mullist = [];
+    var mullist = [];
     for(var i = 0; i < symlist.length; i++)
     {
         if(symlist[i][4]=='x')
@@ -307,7 +307,7 @@ function findMultiplications()
 
 function findAddSubs()
 {
-    mullist = [];
+    var mullist = [];
     for(var i = 0; i < symlist.length; i++)
     {
         if(symlist[i][4]=='+')
@@ -328,7 +328,7 @@ function findAddSubs()
 
 function countOp(ml)
 {
-    count = 0;
+    var count = 0;
     for(var i = 0; i < ml.length ; i++)
     {
         if(ml[i][4]=='/'||ml[i][4]=='+'||ml[i][4]=='-'||ml[i][4]=='x')
@@ -364,10 +364,10 @@ function cutDownYs()
 function countAlpha()
 {
     charList = {'x':0,'y':0,'z':0,'a':0,'b':0,'c':0};
-    flag = 0;
+    var flag = 0;
     for(var i = 0; i < symlist.length; i++)
     {
-        if(symlist[i][4]=='a'||symlist[i][4]=='b'||symlist[i][4]=='c'||symlist[i][4]=='y')
+        if(symlist[i][4]=='a'||symlist[i][4]=='b'||symlist[i][4]=='c'||symlist[i][4]=='y'||symlist[i][4]=='z')
         {
             charList[symlist[i][4]] = charList[symlist[i][4]] + 1;
             flag = 1;
@@ -395,8 +395,8 @@ function countAlpha()
 
 function findLinearEquations()
 {
-    tmp = [];
-    c = symlist[0][5];
+    var tmp = [];
+    var c = symlist[0][5];
     for(var i = 0; i < symlist.length; i++)
     {
         if(symlist[i][5]==c)
@@ -415,8 +415,8 @@ function findLinearEquations()
 
 function checkLinearEquations()
 {
-    varcount = 0;
-    count = equationList.length;
+    var varcount = 0;
+    var count = equationList.length;
     Object.keys(charList).forEach(function (key) { 
         var value = charList[key]
         if(value < equationList)
@@ -441,8 +441,8 @@ function eqTag(c)
 }
 function getCoefficients()
 {
-    m = [];
-    n = [];
+    var m = [];
+    var n = [];
     for(var i = 0;i < equationList.length; i++)
     {
         for(var j = 0; j < equationList.length; j++)
@@ -459,14 +459,14 @@ function getCoefficients()
 
 function getConstants()
 {
-    m = [];
-    n = 0;
-    eq = -1;
+    var m = [];
+    var n = 0;
+    var eq = -1;
     for(var i = 0;i < equationList.length; i++)
     {
         for(var j = 0; j < equationList[i].length; j++)
         {
-            if(!(isNaN(equationList[i][j][4])) && (j+1<equationList[i].length && Object.keys(varlist).indexOf(equationList[i][j+1][4]) < 0 ))  
+            if(!(isNaN(equationList[i][j][4])) && ((j+1<equationList[i].length && Object.keys(varlist).indexOf(equationList[i][j+1][4]) < 0 ) || j+1==equationList[i].length))  
             {
                 n = n + eq*Number(equationList[i][j][4]);
             }
@@ -478,6 +478,34 @@ function getConstants()
         eq = -1;
     }
     return m;
+}
+
+function evaluateList()
+{
+    cutDownYs();
+    symlist = sortList(symlist);
+    findEquals();
+    findNumbers();
+    if(countAlpha())
+    {
+        findLinearEquations();
+        if(checkLinearEquations())
+        {
+            var A = getCoefficients();
+            var B = getConstants();
+            var X = Object.keys(varlist);
+            var ans = numeric.solve(A,B);
+            setEqResults(ans,X);
+            //solveLinearEquations();
+        }
+        else
+            console.log('invalid Equations');
+    }
+    else
+    {
+        findResult();
+        setResult();
+    }
 }
 //Process Incoming Data for image
 function processdata(data){
@@ -498,6 +526,7 @@ function processdata(data){
             symlist.push([xa,ya,wa,ha,va,Number(key),va]);
         }
     }
+    backuplist = $.extend(true, [], symlist);
     var tmp = $('#file').prop('files')[0];
     $('#div-img').css({
         'width':sizex,
@@ -505,44 +534,26 @@ function processdata(data){
         'background-image':'url(' + URL.createObjectURL(tmp) + ')'
     });
     drawList(symlist);
-    cutDownYs();
-    symlist = sortList(symlist);
-    findEquals();
-    findNumbers();
-    if(countAlpha())
-    {
-        findLinearEquations();
-        if(checkLinearEquations())
-        {
-            A = getCoefficients();
-            B = getConstants();
-            X = Object.keys(varlist);
-            ans = numeric.solve(A,B);
-            setEqResults(ans,X);
-            //solveLinearEquations();
-        }
-        else
-            console.log('invalid Equations');
-    }
-    else
-    {
-        findResult();
-        setResult();
-    }
+    evaluateList();
     $('.num-box').on('click',function(){
-        $(this).addClass('selected-num');
-        val = prompt("Please enter correct value");
-        $(this).text(val);
-        i = $(this).data('id');
-        change_list[clen] = {
-        	'x':symlist[i][0]/sizex,
-        	'y':symlist[i][1]/sizey,
-        	'w':symlist[i][2]/sizex,
-        	'h':symlist[i][3]/sizey,
-        	'iname':imagename,
-        	'val':val
-        };
-        clen++;
+                result = 0,charList = $.extend(true, [], []),equationList =$.extend(true, [], []),coefficients = $.extend(true, [], []), varlist = $.extend(true, [], []);
+                symlist = $.extend(true, [], backuplist);
+                $(this).addClass('selected-num');
+                val = prompt("Please enter correct value");
+                $(this).text(val);
+                symlist[Number($(this).data('id'))][4] = val;
+                backuplist = $.extend(true, [], symlist); 
+                i = $(this).data('id');
+                change_list[clen] = {
+                    'x':symlist[i][0]/sizex,
+                    'y':symlist[i][1]/sizey,
+                    'w':symlist[i][2]/sizex,
+                    'h':symlist[i][3]/sizey,
+                    'iname':imagename,
+                	'val':val
+                }
+                clen++;
+                evaluateList();
     });
 }
 
