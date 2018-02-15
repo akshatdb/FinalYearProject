@@ -52,7 +52,6 @@
 			<div class="form">
 				<form enctype="multipart/form-data" id="form-img" class="form-class" action="{% url 'calc:process' %}" method="post">
 					{% csrf_token %}
-					
 					<img id="image-view"/>
 					<input type="file" id="file" name="image" class="inputfile" required accept="image/*;capture=camera"/>
 					<label for="file" id="file-upload-label"><i class="fa fa-camera-retro" style="margin-right:10px"></i>
@@ -63,13 +62,7 @@
 		</div>
 		<div class="row choice-div">
 			<div class="column-4 help-col">
-				<button class="input-btn" data-value=0><i class="fa fa-camera-retro" style="margin-right:10px"></i>Basic Calculation</button>
-			</div>
-			<div class="column-4 help-col">
-				<button class="input-btn" data-value=1><i class="fa fa-camera-retro" style="margin-right:10px"></i>Plot Equations</button>
-			</div>
-			<div class="column-4 help-col">
-				<button class="input-btn" data-value=2><i class="fa fa-camera-retro" style="margin-right:10px"></i>Solve Equations</button>
+				<button class="input-btn" data-value=1><i class="fa fa-camera-retro" style="margin-right:10px"></i>Solve</button>
 			</div>
 		</div>
 		<div class="row help-div">
@@ -116,7 +109,7 @@
     	var upload = new Upload(file,addr,reqt,csrf);
 
     	// maby check size or type here with upload.getSize() and upload.getType()
-
+    	$('#failed-wrp').hide('fast');
     	// execute upload
     	upload.doUpload();
 		});

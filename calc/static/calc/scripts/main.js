@@ -9,7 +9,7 @@ function setResult()
     for (var i = 0;i < symlist.length; i++)
     {
         result = result + Number(symlist[i][4]);
-        resultstr = resultstr + '+' + symlist[i][4];
+        resultstr = resultstr + '+' + symlist[i][6];
     }
     $('.answer').html(resultstr.substr(1) + ' = ' + result);
 }
@@ -70,6 +70,7 @@ function findNumbers()
         if (Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 0)
         {
             num = Number(symlist[i][4]);
+            sym = symlist[i][6];
             start = i;
             state = 1;
             c = symlist[i][5];
@@ -78,7 +79,9 @@ function findNumbers()
         {
 
             num = num*10 + Number(symlist[i][4]);
+            sym = sym + symlist[i][6];
             symlist[start][4] = num;
+            symlist[start][6] = sym
             symlist[start][2] = symlist[i][0]+symlist[i][2]-symlist[start][0];
             symlist[start][3] = (symlist[i][1]+symlist[i][3])>(symlist[start][1]+symlist[start][3])?(symlist[i][1]+symlist[i][3]):(symlist[start][1]+symlist[start][3]);
             symlist[start][1] = symlist[i][1]<symlist[start][1]?symlist[i][1]:symlist[start][1];
@@ -205,6 +208,7 @@ function solveUpDown(funcList)
     for(var i = 0; i < funcList.length; i++)
     {
         symlist[funcList[i][0]][4] = symlist[funcList[i][0]][4]/symlist[funcList[i][2]][4];
+        symlist[funcList[i][0]][6] = '(' + symlist[funcList[i][0]][6] + '&divide;' + symlist[funcList[i][2]][6] + ')';
         symlist[funcList[i][0]][0] = symlist[funcList[i][1]][0];
         symlist[funcList[i][0]][2] = symlist[funcList[i][1]][2];
         symlist[funcList[i][0]][1] = symlist[funcList[i][0]][1];
@@ -240,12 +244,15 @@ function solveLeftRight(funcList)
         {
             case '+':
                 symlist[funcList[i][0]][4] = Number(symlist[funcList[i][0]][4])+Number(symlist[funcList[i][2]][4]);
+                symlist[funcList[i][0]][6] = '(' + symlist[funcList[i][0]][6] + '+' + symlist[funcList[i][2]][6] + ')';
                 break;
             case '-':
                 symlist[funcList[i][0]][4] = Number(symlist[funcList[i][0]][4])-Number(symlist[funcList[i][2]][4]);
+                symlist[funcList[i][0]][6] = '(' + symlist[funcList[i][0]][6] + '-' + symlist[funcList[i][2]][6] + ')';
                 break;
             case 'x':
                 symlist[funcList[i][0]][4] = Number(symlist[funcList[i][0]][4])*Number(symlist[funcList[i][2]][4]);
+                symlist[funcList[i][0]][6] = '(' + symlist[funcList[i][0]][6] + '&times;' + symlist[funcList[i][2]][6] + ')';
         }
         symlist[funcList[i][0]][0] = symlist[funcList[i][0]][0];
         symlist[funcList[i][0]][2] = symlist[funcList[i][2]][0]+symlist[funcList[i][2]][2]-symlist[funcList[i][0]][0];
@@ -488,7 +495,7 @@ function processdata(data){
             wa = data[key]['w']*sizex+(data[key]['w']*sizex)/3;
             ha = data[key]['h']*sizey+(data[key]['h']*sizey)/3;
             va = data[key]['val'];
-            symlist.push([xa,ya,wa,ha,va,Number(key),0]);
+            symlist.push([xa,ya,wa,ha,va,Number(key),va]);
         }
     }
     var tmp = $('#file').prop('files')[0];
@@ -585,8 +592,9 @@ Upload.prototype.doUpload = function () {
         },
         error: function (error) {
             // handle error
+            $('#progress-wrp').fadeOut('fast');
             $('#failed-wrp').fadeIn('fast');
-            $('.overlay').fadeOut('slow');
+            $('.overlay').delay(2500).fadeOut('slow');
         },
         async: true,
         data: formData,
