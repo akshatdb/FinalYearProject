@@ -40,7 +40,7 @@
 	{% if messages %}
 	<div class="message">
 		{% for message in messages %}
-			<li {% if message.tags %} class="{{message.tags}}"{% endif %}>{{message}}</li>	
+			<li {% if message.tags %} class="{{message.tags}}"{% endif %}>{{message}}</li>
 		{% endfor %}
 	</div>
 	{% endif %}
@@ -96,11 +96,11 @@
 		</div>
 	</div>
 	<div class="footer">
-		<div class="footer-left">Version 0.1.1</div>
+		<div class="footer-left">Version 0.2.0</div>
 		<div class="footer-right"><a href="https://github.com/akshatdb/FinalYearProject"><i class="fa fa-github github-icon"></i></a></div>
 	</div>
 	<script>
-		$(".input-btn").on("click", function (e) {	
+		$(".input-btn").on("click", function (e) {
 		$(this).blur();
 		var reqt = $(this).data('value');
     	var file = $('#file')[0].files[0];
@@ -136,8 +136,8 @@
         		contentType: 'application/json',
         		processData: false,
         		timeout: 60000
-    	});	
-	});	
+    	});
+	});
 	</script>
 </body>
 </html>
