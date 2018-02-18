@@ -615,7 +615,7 @@ Upload.prototype.doUpload = function () {
         dataType: 'json',
         contentType: false,
         processData: false,
-        timeout: 60000
+        timeout: 16000
     });
 };
 
