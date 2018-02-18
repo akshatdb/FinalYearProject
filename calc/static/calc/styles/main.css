@@ -10,6 +10,7 @@
 	--color-a:#005c4c;
 	--color-b:#07352d;
 	--color-c:#19bb9f;
+	--color-d:#b6eae1;
 	--color-btn-a:#e01313;
 	--color-btn-b:#a70f0f;
 	--footer-color:#191515;
@@ -479,6 +480,24 @@ body.overlay-open { overflow: hidden; }
 	top:10px;
 	right:10px;
 }
+.change-box-btn{
+	position:fixed;
+	top:10px;
+	left:10px;
+	width:40px;
+	height:20px;
+	border-radius: 20px;
+	background:var(--color-d);
+}
+.change-box-btn-circle{
+	position: absolute;
+    background: var(--color-b);
+    width: 15px;
+    height: 15px;
+    border-radius: 15px;
+    top: 3px;
+    left: 2px;
+}
 #feed-btn{
 	position:fixed;
 	bottom:10px;
@@ -486,6 +505,8 @@ body.overlay-open { overflow: hidden; }
 }
 #close-btn>a{
 	color:white;
+	text-decoration: none;
+	font-size:40px;
 }
 #close-btn>a:hover{
 	color:grey;

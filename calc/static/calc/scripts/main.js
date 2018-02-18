@@ -115,11 +115,11 @@ function scaleSizes(){
 
 }
 
-function drawList(listl)
+function drawList(listl,listname)
 {
     for (var i = 0; i < listl.length;i++){
         listn = listl[i];
-        $('#div-img').append('<div id="' + listl.length + '-'+i+'" class="num-box" data-id=' + i + ' ></div>');
+        $('#div-img').append('<div id="' + listl.length + '-'+i+'" class="num-box ' + listname + '" data-id=' + i + ' ></div>');
         $('#'+listl.length + '-'+i).text(listn[4]);
         $('#'+listl.length + '-'+i).css({
             'height':listn[3],
@@ -486,6 +486,8 @@ function evaluateList()
     symlist = sortList(symlist);
     findEquals();
     findNumbers();
+    drawList(symlist,"numbers");
+    $(".numbers").hide();
     if(countAlpha())
     {
         findLinearEquations();
@@ -533,9 +535,9 @@ function processdata(data){
         'height':sizey,
         'background-image':'url(' + URL.createObjectURL(tmp) + ')'
     });
-    drawList(symlist);
+    drawList(symlist, 'digits');
     evaluateList();
-    $('.num-box').on('click',function(){
+    $('.num-box digits').on('click',function(){
                 result = 0,charList = $.extend(true, [], []),equationList =$.extend(true, [], []),coefficients = $.extend(true, [], []), varlist = $.extend(true, [], []);
                 symlist = $.extend(true, [], backuplist);
                 $(this).addClass('selected-num');
@@ -657,5 +659,13 @@ $('#file').on('change',function(){
 		});
 		$('#image-view').fadeIn();
 	}
+});
+$('.change-box-btn').on('click',function(){
+    pos =  ($('.change-box-btn-circle').css('left') == '2px')?'22px':'2px';
+    $('.change-box-btn-circle').animate({
+        'left': pos
+    },500);
+    $('.digits').fadeToggle();
+    $('.numbers').fadeToggle();
 });
 });

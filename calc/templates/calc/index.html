@@ -34,7 +34,8 @@
 		<div class="answer-div">Result = <div class="answer"></div>
 		</div>
 		<div id="div-img"></div>
-		<div id="close-btn"><a href="{% url 'calc:index' %}"><i class="fa fa-close fa-2x"></i></a></div>
+		<div id="close-btn"><a href="{% url 'calc:index' %}">&times;</a></div>
+		<div class="change-box-btn"><div class="change-box-btn-circle" data-on = 'displayDigits' data-off = 'displayNumbers'></div></div>
 		<div id="feed-btn">Learn changes</div>
 	</div>
 	{% if messages %}
