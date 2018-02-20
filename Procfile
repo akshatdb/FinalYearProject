@@ -1,1 +1,1 @@
-web: gunicorn mathcam.wsgi --log-file -
+web: gunicorn mathcam.wsgi --workers 2
