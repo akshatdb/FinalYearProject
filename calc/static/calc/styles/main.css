@@ -162,6 +162,13 @@ cursor: pointer;
     outline: 1px dotted #000;
 	outline: -webkit-focus-ring-color auto 5px;
 }
+.link-new{
+	text-decoration: none;
+	color:white;
+}
+.link-new:hover{
+	color:var(--color-c);
+}
 .footer{
 	position: relative;
 	z-index:3;
