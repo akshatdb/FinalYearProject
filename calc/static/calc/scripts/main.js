@@ -13,8 +13,11 @@ function setResult()
     }
     for (var i = 0;i < symlist.length; i++)
     {
-        result = result + Number(symlist[i][4]);
-        resultstr = resultstr + '+' + symlist[i][6];
+        if(!isNaN(symlist[i][4]))
+        {
+            result = result + Number(symlist[i][4]);
+            resultstr = resultstr + '+' + symlist[i][6];
+        }
     }
     $('.answer').html(resultstr.substr(1) + ' = ' + result);
 }
@@ -555,7 +558,7 @@ function findPowers(rlist)
                 ys = symlist[i][1];
                 ws = symlist[i][2];
                 hs = symlist[i][3];
-                if((yn+hn) < (ys+hs/2) && (xn < (xs+3*ws)) && (yn > (ys-3*hs)) && (xn > (xs + ws - hs/2)))
+                if((yn+hn) < (ys+hs/2) && (xn < (xs+ws+hs)) && (yn+hn > (ys-0.2*hs)) && (xn > (xs + ws - hs/4)))
                 {
                     symlist[i][8] = Number(symlist[i+1][4]);
                     symlist.splice(i+1,1);
@@ -575,7 +578,7 @@ function findPowers(rlist)
                 wn = symlist[j][2];
                 hn = symlist[j][3];
                 if(!isNaN(symlist[j][4]))
-                    if((yn+hn) < (ys+hs/2) && (xn < (xs+4*hs)) && (yn > (ys-3*hs)) && (xn > (xs + ws - hs/2)))
+                    if((yn+hn) < (ys+hs/2) && (xn < (xs+ws+hs)) && (yn+hn > (ys-0.2*hs)) && (xn > (xs + ws - hs/4)))
                     {
                         symlist[i][8] = Number(symlist[j][4]);
                         symlist.splice(j,1);
