@@ -649,7 +649,7 @@ function solveQuadratic(coeffList)
     if((b*b - 4*a*c) >= 0)
     {
         var r1 = (-b+Math.sqrt(b*b - 4*a*c))/(2*a);
-        var r2 = (-b+Math.sqrt(b*b - 4*a*c))/(2*a);
+        var r2 = (-b-Math.sqrt(b*b - 4*a*c))/(2*a);
         roots.push(r1.toFixed(2) + ', ' + r2.toFixed(2));
     }
     else
