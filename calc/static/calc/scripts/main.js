@@ -1,11 +1,16 @@
 //Handle Changes
-var imagename,osizex,osizey,change_list = {},clen = 0,symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [], backuplist;
+var imagename,osizex,osizey,change_list = {},clen = 0,symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [], backuplist, pows = [], infinityFlag = 0;
 
 
 function setResult()
 {
     result = 0;
     resultstr = '';
+    if(infinityFlag == 1)
+    {
+      $('.answer').html('Divide by zero error!!');
+      return;
+    }
     for (var i = 0;i < symlist.length; i++)
     {
         result = result + Number(symlist[i][4]);
@@ -30,7 +35,7 @@ function sortList(slist){
     });
     for(var i = 0;i< slist.length;i++)
     {
-       slist[i][5] = i; 
+       slist[i][5] = i;
     }
     tag = symlist[0][5];
     miny = symlist[0][1];
@@ -65,8 +70,11 @@ function findNumbers()
 {
     state = 0;
     c = symlist[0][5];
-    for(var i = 0; i < symlist.length; i++)
+    t = 0;
+    for(var i = 0; i < symlist.length; i++, t++)
     {
+        if(t >= 100)
+            return;
         if (Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 0)
         {
             num = Number(symlist[i][4]);
@@ -85,7 +93,8 @@ function findNumbers()
             symlist[start][2] = symlist[i][0]+symlist[i][2]-symlist[start][0];
             symlist[start][3] = (symlist[i][1]+symlist[i][3])>(symlist[start][1]+symlist[start][3])?(symlist[i][1]+symlist[i][3]):(symlist[start][1]+symlist[start][3]);
             symlist[start][1] = symlist[i][1]<symlist[start][1]?symlist[i][1]:symlist[start][1];
-            symlist[start][3] = symlist[start][3] - symlist[start][1];          
+            symlist[start][3] = symlist[start][3] - symlist[start][1];
+            symlist[start][7] = symlist[start][7].concat(symlist[i][7]);
             symlist.splice(i,1);
             i = i - 1;
         }
@@ -93,11 +102,11 @@ function findNumbers()
         {
             if((Number(symlist[i][4]) >= 0 && Number(symlist[i][4] <= 9) && state == 1) && symlist[i][5]!=c)
             {
-               i = i - 1;  
+               i = i - 1;
             }
             state = 0;
             num = 0;
-        }    
+        }
     }
 }
 
@@ -158,6 +167,10 @@ function findEquals()
                 if(xa-wa < xb && xa+wa+wa > xb+wb)
                 {
                     symlist[i][4] = '=';
+                    symlist[i][0] = xa<xb?xa:xb;
+                    symlist[i][1] = ya<yb?ya:yb;
+                    symlist[i][2] = (xa+wa>xb+wb?(xa+wa):(xb+wb)) - symlist[i][0];
+                    symlist[i][3] = (ya+ha>yb+hb?(ya+ha):(yb+hb)) - symlist[i][1];
                     symlist.splice(i+1,1);
                 }
             }
@@ -165,6 +178,18 @@ function findEquals()
     }
 }
 
+
+function solvePowers()
+{
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(symlist[i][8]!='\0')
+        {
+            symlist[i][4] = Math.pow(Number(symlist[i][4]),Number(symlist[i][8]));
+            symlist[i][6] = symlist[i][6] + '<sup>' + symlist[i][8] + '</sup>'; 
+        }
+    }
+}
 function findAboveBelow(i)
 {
     var xs = symlist[i][0];
@@ -181,7 +206,7 @@ function findAboveBelow(i)
             var wn = symlist[j][2];
             if(( xn > (xs-ws/2) ) && ( (xn+wn) < (xs+ws+ws/2) ) )
             {
-         
+
                 var hn = symlist[j][3];
                 var yn = symlist[j][1];
                 if( ( yn > (ys-ws-ws) ) && ( (yn+hn) < (ys+hs) ) )
@@ -336,12 +361,17 @@ function countOp(ml)
     }
     if(count>0)
         return true;
-    else 
+    else
         return false;
 }
 function findResult(){
-    while(countOp(symlist)){
+  newLength = 0;
+  solvePowers();
+    while(countOp(symlist) && newLength != symlist.length){
+        newLength = symlist.length;
         divlist = findDivisions();
+        if(infinityFlag == 1)
+          break;
         solveUpDown(divlist);
         divlist = findMultiplications();
         solveLeftRight(divlist);
@@ -372,21 +402,39 @@ function countAlpha()
             charList[symlist[i][4]] = charList[symlist[i][4]] + 1;
             flag = 1;
             if(i-1>=0 && Number(symlist[i-1][4]) == symlist[i-1][4] && symlist[i-1][5] == symlist[i][5])
-                coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5]]);
+            {    if(i-2 >= 0 && symlist[i-2][4] == '-')
+                  coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5],'-']);
+                 else
+                  coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5],'+']);
+            }
             else
-                coefficients.push([symlist[i][4],i,1]);
+            {
+                if(i-1>=0 && symlist[i-1][4] == '-')
+                  coefficients.push([symlist[i][4],i,1,symlist[i][5],'-']);
+                else
+                  coefficients.push([symlist[i][4],i,1,symlist[i][5],'+']);
+            }
         }
         if(symlist[i][4]=='x')
-            if(symlist[i-1][4]=='+'||symlist[i-1][4]=='x'||symlist[i-1][4]=='-'||symlist[i+1][4]=='+'||symlist[i+1][4]=='x'||symlist[i+1][4]=='-')
+            if((i-1>=0 && (symlist[i-1][4]=='+'||symlist[i-1][4]=='x'||symlist[i-1][4]=='-'))||(i+1<symlist.length && (symlist[i+1][4]=='+'||symlist[i+1][4]=='x'||symlist[i+1][4]=='-')))
             {
                 charList[symlist[i][4]] = charList[symlist[i][4]] + 1;
                 flag = 1;
                 if(i-1>=0 && Number(symlist[i-1][4]) == symlist[i-1][4] && symlist[i-1][5] == symlist[i][5])
-                    coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5]]);
+                {    if(i-2 >= 0 && symlist[i-2][4] == '-')
+                      coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5],'-']);
+                     else
+                      coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5],'+']);
+                }
                 else
-                    coefficients.push([symlist[i][4],i,1]);
-            }    
-                
+                {
+                    if(i-1>=0 && symlist[i-1][4] == '-')
+                      coefficients.push([symlist[i][4],i,1,symlist[i][5],'-']);
+                    else
+                      coefficients.push([symlist[i][4],i,1,symlist[i][5],'+']);
+                }
+            }
+
     }
     if (flag > 0)
         return true;
@@ -417,7 +465,7 @@ function checkLinearEquations()
 {
     var varcount = 0;
     var count = equationList.length;
-    Object.keys(charList).forEach(function (key) { 
+    Object.keys(charList).forEach(function (key) {
         var value = charList[key]
         if(value < equationList)
             return false;
@@ -443,6 +491,7 @@ function getCoefficients()
 {
     var m = [];
     var n = [];
+    sign = +1;
     for(var i = 0;i < equationList.length; i++)
     {
         for(var j = 0; j < equationList.length; j++)
@@ -452,7 +501,11 @@ function getCoefficients()
     }
     for(var i = 0; i < coefficients.length; i++)
     {
-        m[eqTag(coefficients[i][3])][varlist[coefficients[i][0]]] = m[eqTag(coefficients[i][3])][varlist[coefficients[i][0]]] + Number(coefficients[i][2]); 
+        if(coefficients[i][4] == '-')
+          sign = -1;
+        else
+          sign = +1;
+        m[eqTag(coefficients[i][3])][varlist[coefficients[i][0]]] = m[eqTag(coefficients[i][3])][varlist[coefficients[i][0]]] + sign*Number(coefficients[i][2]);
     }
     return m;
 }
@@ -466,7 +519,7 @@ function getConstants()
     {
         for(var j = 0; j < equationList[i].length; j++)
         {
-            if(!(isNaN(equationList[i][j][4])) && ((j+1<equationList[i].length && Object.keys(varlist).indexOf(equationList[i][j+1][4]) < 0 ) || j+1==equationList[i].length))  
+            if(!(isNaN(equationList[i][j][4])) && ((j+1<equationList[i].length && Object.keys(varlist).indexOf(equationList[i][j+1][4]) < 0 ) || j+1==equationList[i].length))
             {
                 n = n + eq*Number(equationList[i][j][4]);
             }
@@ -479,29 +532,91 @@ function getConstants()
     }
     return m;
 }
-
+function giveId()
+{
+    for(var i = 0; i < symlist.length; i++)
+    {
+        symlist[i][7].push(i);
+    }
+}
+function findPowers(rlist)
+{
+    for(var i = 0; i < symlist.length; i++)
+    {
+        if(isNaN(symlist[i][4]))
+        {
+            if(i+1<symlist.length && !(isNaN(symlist[i+1][4])))
+            {
+                xn = symlist[i+1][0];
+                yn = symlist[i+1][1];
+                wn = symlist[i+1][2];
+                hn = symlist[i+1][3];
+                xs = symlist[i][0];
+                ys = symlist[i][1];
+                ws = symlist[i][2];
+                hs = symlist[i][3];
+                if((yn+hn) < (ys+hs/2) && (xn < (xs+3*ws)) && (yn > (ys-3*hs)) && (xn > (xs + ws - hs/2)))
+                {
+                    symlist[i][8] = Number(symlist[i+1][4]);
+                    symlist.splice(i+1,1);
+                }
+            }
+        }
+        else
+        {
+            xs = symlist[i][0];
+            ys = symlist[i][1];
+            ws = symlist[i][2];
+            hs = symlist[i][3];
+            for(var j = 0; j < symlist.length; j++)
+            {
+                xn = symlist[j][0];
+                yn = symlist[j][1];
+                wn = symlist[j][2];
+                hn = symlist[j][3];
+                if(!isNaN(symlist[j][4]))
+                    if((yn+hn) < (ys+hs/2) && (xn < (xs+4*hs)) && (yn > (ys-3*hs)) && (xn > (xs + ws - hs/2)))
+                    {
+                        symlist[i][8] = Number(symlist[j][4]);
+                        symlist.splice(j,1);
+                        break;
+                    }
+            }
+        }
+    }
+}
 function evaluateList()
 {
     cutDownYs();
     symlist = sortList(symlist);
+    giveId();
     findEquals();
+    relist = $.extend(true, [], symlist);
     findNumbers();
+    findPowers(symlist,relist);
     drawList(symlist,"numbers");
     $(".numbers").hide();
     if(countAlpha())
     {
         findLinearEquations();
-        if(checkLinearEquations())
+        if(countVarPowers())
         {
-            var A = getCoefficients();
-            var B = getConstants();
-            var X = Object.keys(varlist);
-            var ans = numeric.solve(A,B);
-            setEqResults(ans,X);
-            //solveLinearEquations();
+
         }
         else
-            console.log('invalid Equations');
+        {
+          if(checkLinearEquations())
+          {
+              var A = getCoefficients();
+              var B = getConstants();
+              var X = Object.keys(varlist);
+              var ans = numeric.solve(A,B);
+              setEqResults(ans,X);
+              //solveLinearEquations();
+            }
+            else
+                console.log('invalid Equations');
+        }
     }
     else
     {
@@ -525,7 +640,7 @@ function processdata(data){
             wa = data[key]['w']*sizex+(data[key]['w']*sizex)/3;
             ha = data[key]['h']*sizey+(data[key]['h']*sizey)/3;
             va = data[key]['val'];
-            symlist.push([xa,ya,wa,ha,va,Number(key),va]);
+            symlist.push([xa,ya,wa,ha,va,Number(key),va,[],'\0']);
         }
     }
     backuplist = $.extend(true, [], symlist);
@@ -544,7 +659,7 @@ function processdata(data){
                 val = prompt("Please enter correct value");
                 $(this).text(val);
                 symlist[Number($(this).data('id'))][4] = val;
-                backuplist = $.extend(true, [], symlist); 
+                backuplist = $.extend(true, [], symlist);
                 i = $(this).data('id');
                 change_list[clen] = {
                     'x':symlist[i][0]/sizex,
