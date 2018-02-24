@@ -464,6 +464,7 @@ i.github-icon:hover,i.github-icon:focus{
 	font-size:10px;
 	color:white;
 	text-align: center;
+	font-family:MONOSPACE;
 }
 body.overlay-open { overflow: hidden; }
 

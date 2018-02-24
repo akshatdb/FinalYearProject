@@ -1,5 +1,5 @@
 //Handle Changes
-var imagename,osizex,osizey,change_list = {},clen = 0,symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [], backuplist, pows = [], infinityFlag = 0;
+var imagename,osizex,osizey,change_list = {},clen = 0,symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [], backuplist, pows = [], infinityFlag = 0,nonLinearFlag = 0, roots = [];
 
 
 function setResult()
@@ -27,6 +27,16 @@ function setEqResults(ans,X)
         result = result + ',' + X[i] + ' = ' + ans[i].toFixed(4);
     }
     $('.answer').html(result.substr(1));
+}
+
+function setRootsResults()
+{
+    result = '';
+    for(var i = 0; i < roots.length; i++)
+    {
+        result = result + ' , '  + 'Roots for equation ' + (i+1) + ' = ' + roots;
+    }
+    $('.answer').html(result.substr(3));
 }
 //find numbers in the image
 function sortList(slist){
@@ -391,13 +401,23 @@ function cutDownYs()
         }
     }
 }
+
+function isAlpha(slist,i)
+{
+    if(slist[i][4]=='a'||slist[i][4]=='b'||slist[i][4]=='c'||slist[i][4]=='y'||slist[i][4]=='z')
+        return 1;
+    if(slist[i][4]=='x')
+            if((i-1>=0 && (slist[i-1][4]=='+'||slist[i-1][4]=='x'||slist[i-1][4]=='-'))||(i+1<slist.length && (slist[i+1][4]=='+'||slist[i+1][4]=='x'||slist[i+1][4]=='-')))
+                return 1;
+    return 0;
+}
 function countAlpha()
 {
     charList = {'x':0,'y':0,'z':0,'a':0,'b':0,'c':0};
     var flag = 0;
     for(var i = 0; i < symlist.length; i++)
     {
-        if(symlist[i][4]=='a'||symlist[i][4]=='b'||symlist[i][4]=='c'||symlist[i][4]=='y'||symlist[i][4]=='z')
+        if(isAlpha(symlist,i))
         {
             charList[symlist[i][4]] = charList[symlist[i][4]] + 1;
             flag = 1;
@@ -415,26 +435,6 @@ function countAlpha()
                   coefficients.push([symlist[i][4],i,1,symlist[i][5],'+']);
             }
         }
-        if(symlist[i][4]=='x')
-            if((i-1>=0 && (symlist[i-1][4]=='+'||symlist[i-1][4]=='x'||symlist[i-1][4]=='-'))||(i+1<symlist.length && (symlist[i+1][4]=='+'||symlist[i+1][4]=='x'||symlist[i+1][4]=='-')))
-            {
-                charList[symlist[i][4]] = charList[symlist[i][4]] + 1;
-                flag = 1;
-                if(i-1>=0 && Number(symlist[i-1][4]) == symlist[i-1][4] && symlist[i-1][5] == symlist[i][5])
-                {    if(i-2 >= 0 && symlist[i-2][4] == '-')
-                      coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5],'-']);
-                     else
-                      coefficients.push([symlist[i][4],i,symlist[i-1][4],symlist[i][5],'+']);
-                }
-                else
-                {
-                    if(i-1>=0 && symlist[i-1][4] == '-')
-                      coefficients.push([symlist[i][4],i,1,symlist[i][5],'-']);
-                    else
-                      coefficients.push([symlist[i][4],i,1,symlist[i][5],'+']);
-                }
-            }
-
     }
     if (flag > 0)
         return true;
@@ -585,6 +585,80 @@ function findPowers(rlist)
         }
     }
 }
+function getMaxPower(n)
+{
+    max = 0;
+    for(var i = 0; i < equationList[n].length; i++)
+    {
+        if(equationList[n][i][8]!='\0' && equationList[n][i][8] > max)
+            max = equationList[n][i][8];
+    }
+    return max;
+}
+function getOneCoefficient(i,j)
+{
+    sign = +1;
+    if(j-1 >= 0 && !(isNaN(equationList[i][j-1][4])))
+    {
+        if(j-2 >= 0 && equationList[i][j-2][4] == '-')
+            sign = -1;
+        return sign*Number(equationList[i][j-1][4]);
+    }
+    return 1;
+}
+function countVarPowers()
+{
+    var m = [],n,tmp = [];
+    for(var i = 0; i < equationList.length; i++)
+    {
+        n = getMaxPower(i);
+        tmp.push(n);
+        if(n > 1)
+            nonLinearFlag = 1;
+        for(var j = 0; j <= n; j++)
+        {
+            m.push(0);
+        }
+        pows.push(m);
+    }
+    pows.push(tmp);
+    for(var i = 0; i < equationList.length; i++)
+    {
+        for(var j = 0; j < equationList[i].length; j++)
+        {
+            if(isAlpha(equationList[i],j))
+            {
+                if(equationList[i][j][8] == '\0')
+                    pows[i][1] = pows[i][1] + getOneCoefficient(i,j);
+                else
+                    pows[i][equationList[i][j][8]] = pows[i][equationList[i][j][8]] + getOneCoefficient(i,j); 
+            }
+            else{
+                if(!isNaN(equationList[i][j][4]) && j+1 < equationList[i].length && !isAlpha(equationList[i],j+1))
+                    pows[i][0] = pows[i][0] + Number(equationList[i][j][4]);
+            }
+        }
+    }
+}
+
+function solveQuadratic(coeffList)
+{
+    var a = coeffList[2];
+    var b = coeffList[1];
+    var c = coeffList[0];
+    if((b*b - 4*a*c) >= 0)
+    {
+        var r1 = (-b+Math.sqrt(b*b - 4*a*c))/(2*a);
+        var r2 = (-b+Math.sqrt(b*b - 4*a*c))/(2*a);
+        roots.push(r1.toFixed(2) + ', ' + r2.toFixed(2));
+    }
+    else
+    {
+        var real = (-b)/(2*a);
+        var complex = Math.sqrt(-(b*b - 4*a*c))/(2*a);
+        roots.push(real.toFixed(2) + ' &plusmn; ' + complex.toFixed(2) + 'i');
+    }
+}
 function evaluateList()
 {
     cutDownYs();
@@ -599,9 +673,18 @@ function evaluateList()
     if(countAlpha())
     {
         findLinearEquations();
-        if(countVarPowers())
+        countVarPowers()
+        if(nonLinearFlag == 1)
         {
-
+            for(var i = 0; i < equationList.length; i++)
+            {
+                switch(pows[equationList.length][i])
+                {
+                    case 2:solveQuadratic(pows[i]);break;
+                    default:console.log('oh shit!waddup');
+                }
+            }
+            setRootsResults();
         }
         else
         {
