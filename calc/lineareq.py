@@ -228,14 +228,20 @@ def recognize(img, contours):
 
 def init_conf():
 	modelc = load_model(abs_path + '/digits.h5')
-	#modelc.load_weights(abs_path + '/weightsc.h5')
+	try:
+		modelc.load_weights(abs_path + '/weightsc.h5')
+	except:
+		print 'what'
 	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
 	modelc.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphc = tf.get_default_graph()
 	return modelc, graphc
 def init_char():
 	modeld = load_model(abs_path + '/all.h5')
-	#modeld.load_weights(abs_path + '/weightsd.h5')
+	try:
+		modeld.load_weights(abs_path + '/weightsd.h5')
+	except:
+		print 'what'
 	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
 	modeld.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphd = tf.get_default_graph()
