@@ -36,7 +36,7 @@
 		<div id="div-img"></div>
 		<div id="close-btn"><a href="{% url 'calc:index' %}">&times;</a></div>
 		<div class="change-box-btn"><div class="change-box-btn-circle" data-on = 'displayDigits' data-off = 'displayNumbers'></div></div>
-		<div id="feed-btn">Learn changes</div>
+		<div id="feed-btn">learn</div>
 	</div>
 	{% if messages %}
 	<div class="message">
@@ -97,7 +97,7 @@
 		</div>
 	</div>
 	<div class="footer">
-		<div class="footer-left">Version 0.3.1 &nbsp;|&nbsp; <a class="link-new" href="{% url 'admin:index' %}">Admin Panel</a></div>
+		<div class="footer-left">Version 0.3.2 &nbsp;|&nbsp; <a class="link-new" href="{% url 'admin:index' %}">Admin Panel</a></div>
 		<div class="footer-right"><a href="https://github.com/akshatdb/FinalYearProject"><i class="fa fa-github github-icon"></i></a></div>
 	</div>
 	<script>
@@ -117,28 +117,31 @@
 	</script>
 	<script>
 		$('#feed-btn').on('click',function(){
-			change_list['length'] = clen;
-   			$.ajax({
-        		type: "POST",
-        		url: "{% url 'calc:learn' %}",
-        		success: function (data) {
-            		// your callback here
-        		},
-        		error: function (error) {
-            		// handle error
-        		},
-        		async: true,
-        		data: JSON.stringify(change_list),
-        		cache: false,
-        		headers:{
-        			"X-CSRFToken" : $('[name="csrfmiddlewaretoken"]').val()
-        		},
-        		dataType: 'json',
-        		contentType: 'application/json',
-        		processData: false,
-        		timeout: 60000
-    	});
-	});
-	</script>
+			$('#feed-btn').fadeOut();
+            change_list['length'] = clen;
+            $.ajax({
+                type: "POST",
+                url: "{% url 'calc:learn' %}",
+                success: function (data) {
+                    // your callback here
+                },
+                error: function (error) {
+                    // handle error
+                },
+                async: true,
+                data: JSON.stringify(change_list),
+                cache: false,
+                headers:{
+                    "X-CSRFToken" : $('[name="csrfmiddlewaretoken"]').val()
+                },
+                dataType: 'json',
+                contentType: 'application/json',
+                processData: false,
+                timeout: 60000
+        });
+        change_list = $.extend(true, [], []);
+        clen = 0;
+    });
+</script>
 </body>
 </html>

@@ -13,6 +13,7 @@ Version | Changes | Date of deploment
 0.2.1 | Basic exponentiation added, along with bugs | 23-02-2018
 0.3.0 | Basic support for finding roots of quadratic equations | 24-02-2018
 0.3.1 | Added Functional correction and selection for numbers | 27-02-2018
+0.3.2 | Added ability to learn changes | 28-02-2018
 
 ## Heroku Buildpacks
 

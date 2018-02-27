@@ -9,7 +9,7 @@ from django.contrib import messages
 import json
 
 from .basiccal import findbasic
-from .lineareq import findlinear
+from .lineareq import findlinear, learn_model
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
 

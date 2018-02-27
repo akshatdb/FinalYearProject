@@ -160,7 +160,8 @@ function drawList(listl,listname)
             'height':listn[3],
             'width':listn[2],
             'top':listn[1],
-            'left':listn[0]
+            'left':listn[0],
+            'font-size':listn[3]
         });
     }
     return 1;
@@ -785,6 +786,7 @@ function processdata(data){
     evaluateList();
     $('.num-box.digits').on('click',function(){
                 setInitValues();
+                $('#feed-btn').fadeIn();
                 symlist = $.extend(true, [], backuplist);
                 $(this).addClass('selected-num');
                 val = prompt("Please enter correct value:");

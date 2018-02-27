@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from scipy.io import loadmat
 from keras.models import load_model
+from keras.optimizers import SGD
 from PIL import Image
 import os
 from django.conf import settings
@@ -33,6 +34,26 @@ digits = {
 	15:'z',
 	16:'+',
 	17:'-',
+}
+digits_rev = {
+	'0':0,
+	'1':1,
+	'2':2,
+	'3':3,
+	'4':4,
+	'5':5,
+	'6':6,
+	'7':7,
+	'8':8,
+	'9':9,
+	'a':10,
+	'b':11,
+	'c':12,
+	'x':13,
+	'y':14,
+	'z':15,
+	'+':16,
+	'-':17,
 }
 alpha = {
 	0:'0',
@@ -207,17 +228,22 @@ def recognize(img, contours):
 
 def init_conf():
 	modelc = load_model(abs_path + '/digits.h5')
-	modelc.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
+	#modelc.load_weights(abs_path + '/weightsc.h5')
+	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
+	modelc.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphc = tf.get_default_graph()
 	return modelc, graphc
 def init_char():
 	modeld = load_model(abs_path + '/all.h5')
-	modeld.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
+	#modeld.load_weights(abs_path + '/weightsd.h5')
+	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
+	modeld.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphd = tf.get_default_graph()
 	return modeld, graphd
 def initdiv():
 	modeldiv = load_model(abs_path + '/divider.h5')
-	modeldiv.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
+	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
+	modeldiv.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphdiv = tf.get_default_graph()
 	return modeldiv, graphdiv
 
@@ -254,6 +280,10 @@ def learnmat(filename,imgx,val):
 	savemat(abs_path + '/data/' + filename[0:-4],{'X':xn,'y':yn})
 
 def learn_model(imgurl,x,y,w,h,val):
+	modeld.save_weights(abs_path + '/weightsd.h5', overwrite=True)
+	modelc.save_weights(abs_path + '/weightsc.h5', overwrite=True)
+	classesd = 18
+	classesc = 13
 	image = cv2.imread(im_path+'/'+imgurl,cv2.IMREAD_GRAYSCALE)
 	image, imgx, imgy = scale_down(image)
 	x = int(x*imgx)
@@ -264,18 +294,20 @@ def learn_model(imgurl,x,y,w,h,val):
 	yr = float(h)/(w+h)
 	img = image[y:y+h,x:x+w]
 	img = preprocess_drop(img)
-	img = mnist_scale(img,xr,yr)
+	img = mnist_scale(img,xr,yr,28)
 	img = img.reshape((28,28))
-	#cv2.imwrite(im_path + '/new/' + str(x) + str(y) + str(w) +str(h) + '-' + val + '.jpg',img)
-	imgx = img.reshape((1,1,784))
-	try:
-		val = revclasses[val]
-		msg = 'ok'
-	except:
-		msg = 'unsupported value'
-		val = -1
-	if val!=-1:
-		learnmat('digitsnew.mat',imgx,val)
-	else:
-		learnmat('divnew.mat',imgx,0)
-	return msg
+	cv2.imwrite(str(val)+'.jpg',img)
+	img = img.reshape((28, 28, 1)).astype('float32')
+	img = np.array([img])
+	img = img/255
+	tmpd = np.zeros((1,classesd))
+	tmpd[0][digits_rev[val]] = 1
+	with graphd.as_default():
+		modeld.fit(img,tmpd, epochs = 1)
+	if digits_rev[val] <= 9 or digits_rev[val] == 13  or digits_rev[val] == 16  or digits_rev[val] == 17:
+		tmpc = np.zeros((1,classesc))
+		tmpc[0][revclasses[val]] = 1
+		with graphc.as_default():
+			modelc.fit(img,tmpc, epochs = 1)
+	cv2.imwrite('asd.jpg',img)
+	return 'ok'

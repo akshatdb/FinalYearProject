@@ -290,10 +290,11 @@ def learn_model(imgurl,x,y,w,h,val):
 	yr = float(h)/(w+h)
 	img = image[y:y+h,x:x+w]
 	img = preprocess_drop(img)
-	img = mnist_scale(img,xr,yr)
+	img = mnist_scale(img,xr,yr,28)
 	img = img.reshape((28,28))
+	cv2.imwrite('asd.jpg',img)
 	#cv2.imwrite(im_path + '/new/' + str(x) + str(y) + str(w) +str(h) + '-' + val + '.jpg',img)
-	imgx = img.reshape((1,1,784))
+	'''imgx = img.reshape((1,1,784))
 	try:
 		val = revclasses[val]
 		msg = 'ok'
@@ -303,5 +304,5 @@ def learn_model(imgurl,x,y,w,h,val):
 	if val!=-1:
 		learnmat('digitsnew.mat',imgx,val)
 	else:
-		learnmat('divnew.mat',imgx,0)
-	return msg
+		learnmat('divnew.mat',imgx,0)'''
+	return 'yes'
