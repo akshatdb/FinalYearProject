@@ -489,6 +489,7 @@ body.overlay-open { overflow: hidden; }
 	right:10px;
 }
 .change-box-btn{
+	display:none;
 	position:fixed;
 	top:10px;
 	left:10px;

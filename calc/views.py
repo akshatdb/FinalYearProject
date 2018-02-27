@@ -9,7 +9,6 @@ from django.contrib import messages
 import json
 
 from .basiccal import findbasic
-from .basiccal import learn_model
 from .lineareq import findlinear
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
@@ -40,7 +39,7 @@ def process(request):
         if form.is_valid():
         	data = form.save()
         	if process_type == 0:
-        		msg = findbasic(str(data.image)) 
+        		msg = findlinear(str(data.image)) 
         	elif process_type == 1:
         		msg = findlinear(str(data.image))
         	else:

@@ -1,6 +1,18 @@
 //Handle Changes
-var imagename,osizex,osizey,change_list = {},clen = 0,symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [], backuplist, pows = [], infinityFlag = 0,nonLinearFlag = 0, roots = [];
+var imagename,osizex,osizey,change_list = {},clen = 0,symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [], backuplist, pows = [], infinityFlag = 0,nonLinearFlag = 0, roots = [], toggleNumbers, numlist;
 
+function setInitValues()
+{
+    result = 0;
+    charList = $.extend(true, [], []);
+    equationList =$.extend(true, [], []);
+    coefficients = $.extend(true, [], []);
+    varlist = $.extend(true, [], []);
+    pows = $.extend(true, [], []);
+    infinityFlag = 0;
+    nonLinearFlag = 0;
+    roots = $.extend(true, [], []);
+}
 
 function setResult()
 {
@@ -13,7 +25,7 @@ function setResult()
     }
     for (var i = 0;i < symlist.length; i++)
     {
-        if(!isNaN(symlist[i][4]))
+        if(!isNaN(symlist[i][4]) && symlist[i][9] == 0)
         {
             result = result + Number(symlist[i][4]);
             resultstr = resultstr + '+' + symlist[i][6];
@@ -50,23 +62,23 @@ function sortList(slist){
     {
        slist[i][5] = i;
     }
-    tag = symlist[0][5];
-    miny = symlist[0][1];
-    maxy = symlist[0][1]+symlist[0][3];
-    padding = 0.7*symlist[0][3];
+    tag = slist[0][5];
+    miny = slist[0][1];
+    maxy = slist[0][1]+slist[0][3];
+    padding = 0.7*slist[0][3];
     for(var i = 1; i<slist.length; i++)
     {
-        if(symlist[i][1] > miny-padding && ((symlist[i][1]+symlist[i][3]) < maxy+padding) && symlist[i][1] < (maxy-padding/4))
+        if(slist[i][1] > miny-padding && ((slist[i][1]+slist[i][3]) < maxy+padding) && slist[i][1] < (maxy-padding/4))
         {
-            symlist[i][5] = tag;
-            miny = miny<symlist[i][1]?miny:symlist[i][1];
-            maxy = maxy>(symlist[i][1]+symlist[i][3])?maxy:(symlist[i][1]+symlist[i][3]);
+            slist[i][5] = tag;
+            miny = miny<slist[i][1]?miny:slist[i][1];
+            maxy = maxy>(slist[i][1]+slist[i][3])?maxy:(slist[i][1]+slist[i][3]);
             padding = 0.7*(maxy-miny);
         }
         else{
-            tag = symlist[i][5];
-            miny = symlist[i][1];
-            maxy = symlist[i][1]+symlist[i][3];
+            tag = slist[i][5];
+            miny = slist[i][1];
+            maxy = slist[i][1]+slist[i][3];
             padding = 0.7*(maxy-miny);
         }
     }
@@ -139,17 +151,19 @@ function scaleSizes(){
 
 function drawList(listl,listname)
 {
+    $('.num-box.'+listname).remove();
     for (var i = 0; i < listl.length;i++){
         listn = listl[i];
-        $('#div-img').append('<div id="' + listl.length + '-'+i+'" class="num-box ' + listname + '" data-id=' + i + ' ></div>');
-        $('#'+listl.length + '-'+i).text(listn[4]);
-        $('#'+listl.length + '-'+i).css({
+        $('#div-img').append('<div id="' + listname + '-'+i+'" class="num-box ' + listname + '" data-id=' + i + ' ></div>');
+        $('#'+listname + '-'+i).text(listn[4]);
+        $('#'+listname + '-'+i).css({
             'height':listn[3],
             'width':listn[2],
             'top':listn[1],
             'left':listn[0]
         });
     }
+    return 1;
 }
 
 function fixYs()
@@ -213,7 +227,7 @@ function findAboveBelow(i)
     var cden = 0;
     for(var j = 0; j < symlist.length; j++)
     {
-        if(symlist[j][4] == Number(symlist[j][4]))
+        if(!isNaN(symlist[j][4]) && symlist[j][9] == 0)
         {
             var xn = symlist[j][0];
             var wn = symlist[j][2];
@@ -264,11 +278,11 @@ function solveUpDown(funcList)
         symlist.splice(funcList[i][2],1);
         for(var j = i;j< funcList.length; j++)
         {
-                if(funcList[j][0]>funcList[i][1])
+                if(funcList[j][0]>funcList[i][2])
                     funcList[j][0]--;
-                if(funcList[j][1]>funcList[i][1])
+                if(funcList[j][1]>funcList[i][2])
                     funcList[j][1]--;
-                if(funcList[j][2]>funcList[i][1])
+                if(funcList[j][2]>funcList[i][2])
                     funcList[j][2]--;
         }
     }
@@ -314,14 +328,17 @@ function findDivisions()
     var divlist = [];
     for(var i=0;i < symlist.length; i++ )
     {
-        [check, numerator, denominator] = findAboveBelow(i);
-        if(check)
+        if(symlist[i][4] == '-')
         {
-            symlist[i][4] = '/';
-            if(denominator!=0)
-                divlist.push([numerator,i,denominator]);
-            else
-                infinityFlag = 1;
+            [check, numerator, denominator] = findAboveBelow(i);
+            if(check)
+            {
+                symlist[i][4] = '/';
+                if(Number(symlist[denominator][4])!=0)
+                    divlist.push([numerator,i,denominator]);
+                else
+                    infinityFlag = 1;
+            }
         }
     }
     return divlist;
@@ -334,7 +351,7 @@ function findMultiplications()
     {
         if(symlist[i][4]=='x')
         {
-            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]))
+            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]) && (symlist[i+1][9] == 0 && symlist[i-1][9] == 0))
                 mullist.push([i-1,i,i+1]);
             else if(i-1<0 || i+1 >= symlist.length)
                 errFlag = 1;
@@ -350,14 +367,14 @@ function findAddSubs()
     {
         if(symlist[i][4]=='+')
         {
-            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]))
+            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]) && (symlist[i+1][9] == 0 && symlist[i-1][9] == 0))
                 mullist.push([i-1,i,i+1]);
             else if(i-1<0 || i+1 >= symlist.length)
                 errFlag = 1;
         }
         if(symlist[i][4]=='-')
         {
-            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]))
+            if((i-1>=0 && symlist[i-1][5]==symlist[i][5])&& (i+1<symlist.length && symlist[i+1][5]==symlist[i][5]) && (symlist[i+1][9] == 0 && symlist[i-1][9] == 0))
                 mullist.push([i-1,i,i+1]);
         }
     }
@@ -380,16 +397,16 @@ function countOp(ml)
 function findResult(){
   newLength = 0;
   solvePowers();
-    while(countOp(symlist) && newLength != symlist.length){
+   while(countOp(symlist) && newLength != symlist.length){
         newLength = symlist.length;
-        divlist = findDivisions();
+        operandlist = findDivisions();
         if(infinityFlag == 1)
           break;
-        solveUpDown(divlist);
-        divlist = findMultiplications();
-        solveLeftRight(divlist);
-        divlist = findAddSubs();
-        solveLeftRight(divlist);
+        solveUpDown(operandlist);
+        operandlist = findMultiplications();
+        solveLeftRight(operandlist);
+        operandlist = findAddSubs();
+        solveLeftRight(operandlist);
     }
 }
 
@@ -668,9 +685,11 @@ function evaluateList()
     symlist = sortList(symlist);
     giveId();
     findEquals();
+    // for future use
     relist = $.extend(true, [], symlist);
     findNumbers();
     findPowers(symlist,relist);
+    numlist = $.extend(true, [], symlist);
     drawList(symlist,"numbers");
     $(".numbers").hide();
     if(countAlpha())
@@ -706,9 +725,35 @@ function evaluateList()
     }
     else
     {
+        $('.change-box-btn').show();
         findResult();
         setResult();
+        bgcolors = ['rgba(0, 0, 0, 0.39)','rgba(241, 241, 241, 0.35)'];
+        $('.num-box.numbers').on('click',function(){
+                if(isNaN(numlist[$(this).data('id')][4]))
+                    return;
+                symlist = $.extend(true, [], numlist);
+                toggle = (symlist[$(this).data('id')][9]+1)%2;
+                symlist[$(this).data('id')][9] = toggle;
+                $(this).css({
+                    'background-color' : bgcolors[toggle]
+                });
+                numlist = $.extend(true, [], symlist);
+                findResult();
+                setResult();
+        });
     }
+}
+
+function isValid(val)
+{
+    if(val.toLowerCase() == 'x' || val.toLowerCase() == 'y' || val.toLowerCase() == 'z' || val.toLowerCase() == 'a' || val.toLowerCase() == 'b' || val.toLowerCase() == 'c')
+            return 1;
+    if(!isNaN(val))
+        return 1;
+    if(val == '-' || val == '+')
+        return 1;
+    return 0;
 }
 //Process Incoming Data for image
 function processdata(data){
@@ -726,7 +771,7 @@ function processdata(data){
             wa = data[key]['w']*sizex+(data[key]['w']*sizex)/3;
             ha = data[key]['h']*sizey+(data[key]['h']*sizey)/3;
             va = data[key]['val'];
-            symlist.push([xa,ya,wa,ha,va,Number(key),va,[],'\0']);
+            symlist.push([xa,ya,wa,ha,va,Number(key),va,[],'\0',0]);
         }
     }
     backuplist = $.extend(true, [], symlist);
@@ -736,15 +781,28 @@ function processdata(data){
         'height':sizey,
         'background-image':'url(' + URL.createObjectURL(tmp) + ')'
     });
-    drawList(symlist, 'digits');
+    drawList(backuplist, 'digits');
     evaluateList();
-    $('.num-box digits').on('click',function(){
-                result = 0,charList = $.extend(true, [], []),equationList =$.extend(true, [], []),coefficients = $.extend(true, [], []), varlist = $.extend(true, [], []);
+    $('.num-box.digits').on('click',function(){
+                setInitValues();
                 symlist = $.extend(true, [], backuplist);
                 $(this).addClass('selected-num');
-                val = prompt("Please enter correct value");
-                $(this).text(val);
-                symlist[Number($(this).data('id'))][4] = val;
+                val = prompt("Please enter correct value:");
+                if(isValid(val))
+                {  
+                    $(this).text(val);
+                    symlist[Number($(this).data('id'))][4] = val; 
+                    symlist[Number($(this).data('id'))][6] = val;   
+                }
+                else
+                {
+                    val = -1;
+                    $(this).text('!');
+                    $(this).css({
+                        'background-color':'red'
+                    });
+                    symlist[Number($(this).data('id'))][9] = 1;
+                }
                 backuplist = $.extend(true, [], symlist);
                 i = $(this).data('id');
                 change_list[clen] = {
@@ -753,7 +811,7 @@ function processdata(data){
                     'w':symlist[i][2]/sizex,
                     'h':symlist[i][3]/sizey,
                     'iname':imagename,
-                	'val':val
+                    'val':val
                 }
                 clen++;
                 evaluateList();
