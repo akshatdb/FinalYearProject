@@ -175,7 +175,7 @@ function drawList(listl,listname)
     $('.num-box.'+listname).remove();
     for (var i = 0; i < listl.length;i++){
         listn = listl[i];
-        if(listn[4].toUpperCase()=='Y')
+        if(isAlpha(listl,i) && listn[4].toUpperCase()=='Y')
             fontsize = listn[3]/2;
         else
             fontsize = listn[3]; 
