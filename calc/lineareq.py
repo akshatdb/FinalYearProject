@@ -302,7 +302,6 @@ def learn_model(imgurl,x,y,w,h,val):
 	img = preprocess_drop(img)
 	img = mnist_scale(img,xr,yr,28)
 	img = img.reshape((28,28))
-	cv2.imwrite(str(val)+'.jpg',img)
 	img = img.reshape((28, 28, 1)).astype('float32')
 	img = np.array([img])
 	img = img/255
@@ -315,5 +314,4 @@ def learn_model(imgurl,x,y,w,h,val):
 		tmpc[0][revclasses[val]] = 1
 		with graphc.as_default():
 			modelc.fit(img,tmpc, epochs = 1)
-	cv2.imwrite('asd.jpg',img)
 	return 'ok'

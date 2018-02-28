@@ -36,6 +36,8 @@ function setResult()
 
 function setEqResults(ans,X)
 {
+    $('#more-btn').show();
+    printEquations();
     result = '';
     for(var i = 0; i < ans.length; i++)
     {
@@ -46,12 +48,31 @@ function setEqResults(ans,X)
 
 function setRootsResults()
 {
+    $('#more-btn').show();  
+    printEquations();
     result = '';
     for(var i = 0; i < roots.length; i++)
     {
         result = result + ' , '  + 'Roots for equation ' + (i+1) + ' = ' + roots;
     }
     $('.answer').html(result.substr(3));
+}
+
+function printEquations()
+{
+    $('.equation-list').html('');
+    for(var i = 0; i < equationList.length; i++)
+    {
+        var equation = '';
+        for(var j = 0; j < equationList[i].length; j++)
+        {
+            if(equationList[i][j][8] == '\0')
+                equation = equation + equationList[i][j][4];
+            else
+                equation = equation + equationList[i][j][4]+'<sup>'+equationList[i][j][8] + '</sup>';
+        }
+        $('.equation-list').append('<li>' + equation + '</li>');
+    }
 }
 //find numbers in the image
 function sortList(slist){
@@ -154,6 +175,10 @@ function drawList(listl,listname)
     $('.num-box.'+listname).remove();
     for (var i = 0; i < listl.length;i++){
         listn = listl[i];
+        if(listn[4].toUpperCase()=='Y')
+            fontsize = listn[3]/2;
+        else
+            fontsize = listn[3]; 
         $('#div-img').append('<div id="' + listname + '-'+i+'" class="num-box ' + listname + '" data-id=' + i + ' ></div>');
         $('#'+listname + '-'+i).text(listn[4]);
         $('#'+listname + '-'+i).css({
@@ -161,7 +186,7 @@ function drawList(listl,listname)
             'width':listn[2],
             'top':listn[1],
             'left':listn[0],
-            'font-size':listn[3]
+            'font-size':fontsize
         });
     }
     return 1;
@@ -576,7 +601,7 @@ function findPowers(rlist)
                 ys = symlist[i][1];
                 ws = symlist[i][2];
                 hs = symlist[i][3];
-                if((yn+hn) < (ys+hs/2) && (xn < (xs+ws+hs)) && (yn+hn > (ys-0.2*hs)) && (xn > (xs + ws - hs/4)))
+                if((yn+hn) < (ys+hs/2) && (xn < (xs+ws+hs)) && (yn+hn > (ys-0.2*hs)) && (xn > (xs + ws - 0.4*hs)))
                 {
                     symlist[i][8] = Number(symlist[i+1][4]);
                     symlist.splice(i+1,1);
@@ -680,6 +705,24 @@ function solveQuadratic(coeffList)
         roots.push(real.toFixed(2) + ' &plusmn; ' + complex.toFixed(2) + 'i');
     }
 }
+
+function solveHigher(coeffList)
+{
+    var ans = [];
+    var r = findRoots(coeffList);
+    for(var i = 0; i < r[0].length;i++)
+    {
+        if(r[1][i] < 0)
+            sign = '-';
+        else
+            sign = '+';
+        if(Math.abs(r[1][i])>0.0000001)
+            ans = ans + ', ' + r[0][i].toFixed(4) + sign + Math.abs(r[1][i]).toFixed(4) + 'i';
+        else
+            ans = ans + ', ' + r[0][i].toFixed(4);
+    }
+    roots.push(ans.substr(1));
+}
 function evaluateList()
 {
     cutDownYs();
@@ -704,7 +747,7 @@ function evaluateList()
                 switch(pows[equationList.length][i])
                 {
                     case 2:solveQuadratic(pows[i]);break;
-                    default:console.log('oh shit!waddup');
+                    default:solveHigher(pows[i]);break;
                 }
             }
             setRootsResults();
@@ -928,5 +971,9 @@ $('.change-box-btn').on('click',function(){
     },500);
     $('.digits').fadeToggle();
     $('.numbers').fadeToggle();
+});
+$('#more-btn').on('click',function(){
+    $(this).toggleClass('rotate').toggleClass('not-rotate');
+    $('.equation-div').slideToggle();
 });
 });

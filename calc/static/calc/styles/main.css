@@ -248,6 +248,23 @@ i.github-icon:hover,i.github-icon:focus{
 		transform:rotate(360deg);
 	}
 }
+
+@keyframes rotate-anim{
+	from{
+		transform:rotate(0deg);
+	}
+	to{
+		transform:rotate(180deg);
+	}
+}
+@keyframes rotate-anim-rev{
+	from{
+		transform:rotate(180deg);
+	}
+	to{
+		transform:rotate(0deg);
+	}
+}
 .aboutus{
 	text-align: left;
 	padding:20px;
@@ -466,9 +483,10 @@ i.github-icon:hover,i.github-icon:focus{
 	background:var(--color-a);
 }
 .answer-div>*{
-	display:inline;
+	display:block;
 }
 .answer{
+	display:inline;
 	font-size:10px;
 	color:white;
 	text-align: center;
@@ -529,6 +547,8 @@ body.overlay-open { overflow: hidden; }
 }
 #feed-btn:hover,#feed-btn:focus,#feed-btn:active{
 	background-color:var(--color-c);
+}
+#feed-btn:hover{
 	cursor:pointer;
 }
 #close-btn>a{
@@ -548,4 +568,36 @@ body.overlay-open { overflow: hidden; }
 	display:none;
 	z-index:3;
 }
-
+.equation-div{
+	font-family: monospace;
+	color:white;
+	display:none;
+}
+.equation-list>li{
+	list-style:none;
+	letter-spacing: 2px;
+}
+#more-btn{
+	position:fixed;
+	color:white;
+	right:5px;
+	bottom:5px;
+	z-index:11;
+	font-size:20px;
+	display:none;
+}
+#more-btn:focus,#more-btn:hover,#more-btn:active
+{
+	color:var(--color-c);
+}
+#more-btn:hover{
+	cursor:pointer;
+}
+.rotate{
+	animation:rotate-anim 0.5s linear 0s 1 normal;
+	animation-fill-mode:forwards;
+}
+.not-rotate{
+	animation:rotate-anim-rev 0.5s linear 0s 1 normal;
+	animation-direction:forwards;
+}
