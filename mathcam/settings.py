@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'calc.apps.CalcConfig',
     'widget_tweaks',
+    'flat_responsive',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

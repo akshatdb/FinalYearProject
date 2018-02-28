@@ -5,7 +5,7 @@ My final year project using Convolutional Neural Networks to detect and solve eq
 The WebApp is temporarily hosted at - [MathOCR](https://www.mathocr.ml)
 
 ## __Version History__
-Version | Changes | Date of deploment
+Version | Changes | Date of deployment
 ------- | ------- | ----------
 0.1.0 | Basic calculations working | 22-01-2018
 0.1.1 | Result shown with calculations performed | 24-01-2018
