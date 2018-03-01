@@ -7,6 +7,10 @@ from django.views import generic
 from django.utils import timezone
 from django.contrib import messages
 import json
+from rest_framework.decorators import api_view,authentication_classes,permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from .basiccal import findbasic
 from .lineareq import findlinear, learn_model
@@ -44,6 +48,24 @@ def process(request):
         		msg = findlinear(str(data.image))
         	else:
         		msg = process_type
+    return JsonResponse(msg)
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def processapi(request):
+    print request.method
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+        process_type =int(request.POST.get('req_type',''))
+        msg = {'this':'what'}
+        if form.is_valid():
+            data = form.save()
+            if process_type == 0:
+                msg = findlinear(str(data.image)) 
+            elif process_type == 1:
+                msg = findlinear(str(data.image))
+            else:
+                msg = process_type
     return JsonResponse(msg)
 
 def learn(request):

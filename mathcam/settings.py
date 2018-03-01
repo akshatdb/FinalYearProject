@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'calc.apps.CalcConfig',
     'widget_tweaks',
     'flat_responsive',
+    'rest_framework',
+    'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
