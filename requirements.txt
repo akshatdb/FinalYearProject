@@ -1,5 +1,6 @@
 dj-database-url==0.4.2
 Django==1.11
+djangorestframework==3.7.7
 django-cleanup==2.1.0
 dj-static==0.0.6
 django-flat-responsive==2.0
@@ -16,7 +17,7 @@ pytest==2.9.2
 scipy==0.17.1
 simplegeneric==0.8.1
 simplejson==3.8.2
-sqlparse==0.1.18
+sqlparse==0.1.18	
 tensorflow==1.4.0
 tensorflow-tensorboard==0.4.0rc3
 whitenoise==3.3.1
