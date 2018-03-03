@@ -102,8 +102,6 @@ i.camera-logo{
 #image-view{
 	position: fixed;
 	z-index:1;
-	width:250px;
-	height:250px;
 	display:none;
 }
 #file-upload-label{
@@ -216,6 +214,21 @@ i.github-icon:hover,i.github-icon:focus{
 }
 .feed-form>input[type=submit]:hover{
 	background-color:var(--color-btn-b);
+}
+.image-crop{
+	margin: auto;
+    border-width: 20px;
+    border-style: solid;
+    border-image: url('../images/border.png') 50 round;
+        touch-action: none;
+	position: fixed;
+	z-index:2;
+	display:none;
+	box-sizing:border-box;
+}
+#img-box{
+	position:fixed;
+	display: inline-block;
 }
 @keyframes anim-msg {
 	from 

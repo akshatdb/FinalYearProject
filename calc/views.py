@@ -14,6 +14,7 @@ from rest_framework.response import Response
 
 from .basiccal import findbasic
 from .lineareq import findlinear, learn_model
+from .apilineareq import apifindlinear
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
 
@@ -47,8 +48,10 @@ def process(request):
         	elif process_type == 1:
         		msg = findlinear(str(data.image))
         	else:
-        		msg = process_type
+        		msg = findbasic(str(data.image))
     return JsonResponse(msg)
+
+#REST API 
 @api_view(['POST'])
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated, ))
@@ -57,13 +60,12 @@ def processapi(request):
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         process_type =int(request.POST.get('req_type',''))
-        msg = {'this':'what'}
         if form.is_valid():
             data = form.save()
             if process_type == 0:
-                msg = findlinear(str(data.image)) 
+                msg = apifindlinear(str(data.image)) 
             elif process_type == 1:
-                msg = findlinear(str(data.image))
+                msg = apifindlinear(str(data.image))
             else:
                 msg = process_type
     return JsonResponse(msg)

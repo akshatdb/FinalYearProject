@@ -1,6 +1,6 @@
 //Handle Changes
 var imagename,osizex,osizey,change_list = {},clen = 0,symlist = [],result = 0,charList = [],equationList =[],coefficients = [], varlist = [], backuplist, pows = [], infinityFlag = 0,nonLinearFlag = 0, roots = [], toggleNumbers, numlist;
-
+var file,cropFlag = 0;
 function setInitValues()
 {
     result = 0;
@@ -158,15 +158,15 @@ function findNumbers()
 
 
 //Calculate scales for recieved image
-function scaleSizes(){
+function scaleSizes(sx,sy){
     wh = $(window).height();
     ww = $(window).width();
-    while(sizex>ww || sizey>wh)
+    while(sx>ww || sy>wh)
     {
-        sizex = 0.9 * sizex;
-        sizey = 0.9 * sizey;
+        sx = 0.9 * sx;
+        sy = 0.9 * sy;
     }
-    return [sizex,sizey]
+    return [sx,sy]
 
 }
 
@@ -804,7 +804,7 @@ function processdata(data){
     osizex = sizex = data['image']['x'];
     osizey = sizey = data['image']['y'];
     imagename = data['imagename'];
-    newsize = scaleSizes();
+    newsize = scaleSizes(sizex,sizey);
     sizex = newsize[0];
     sizey = newsize[1];
     for (var key in data)
@@ -819,11 +819,10 @@ function processdata(data){
         }
     }
     backuplist = $.extend(true, [], symlist);
-    var tmp = $('#file').prop('files')[0];
     $('#div-img').css({
         'width':sizex,
         'height':sizey,
-        'background-image':'url(' + URL.createObjectURL(tmp) + ')'
+        'background-image':'url(' + URL.createObjectURL(file) + ')'
     });
     drawList(backuplist, 'digits');
     evaluateList();
@@ -873,21 +872,12 @@ var Upload = function (file,addr,reqt,csrf) {
 
 
 //Upload
-Upload.prototype.getType = function() {
-    return this.file.type;
-};
-Upload.prototype.getSize = function() {
-    return this.file.size;
-};
-Upload.prototype.getName = function() {
-    return this.file.name;
-};
 Upload.prototype.doUpload = function () {
     var that = this;
     var formData = new FormData();
 
     // add assoc key values, this will be posts values
-    formData.append("image", this.file, this.getName());
+    formData.append("image", this.file, this.file.name);
     formData.append("req_type", this.reqt);
     formData.append("csrfmiddlewaretoken", this.csrf);
     $('.overlay').fadeIn('fast');
@@ -943,25 +933,56 @@ Upload.prototype.progressHandling = function (event) {
     }
 };
 
-
 //Main
 $(document).ready(function(){
 $('#file').on('change',function(){
 	if($('#file').val() != '')
 	{
-		$container = $('body');
-		$scrollTo = $('.choice-div');
+		var $container = $('body');
+		var $scrollTo = $('.choice-div');
 		var tmp = $('#file').prop('files')[0];
-		$('#file-upload-label').hide();
+		var sx,sy;
+        $('#file-upload-label').hide();
 		$('.choice-div').fadeIn();
 		$('.form').css({
 			'top':'40%'
 		})
 		$('#image-view').attr('src',URL.createObjectURL(tmp));
-		$('body,html').animate({
+        $('#image-view').on('load',function(){
+            [sx, sy] = scaleSizes($(this).width(),$(this).height());
+            $(this).css({
+                'width': sx,
+                'height': sy,
+                'top': 1.2*$('.head-icon').height(),
+                'left': ($(window).width()-sx)/2
+            });
+            $('.image-crop').css({
+                'width': sx,
+                'height': sy,
+                'top': 1.2*$('.head-icon').height(),
+                'left': ($(window).width()-sx)/2
+            });
+            $('#img-box').css({
+                'width': sx,
+                'height': sy,
+                'top': 1.2*$('.head-icon').height(),
+                'left': ($(window).width()-sx)/2
+            });
+            $('#image-view').fadeIn();
+            $('#image-view').one('mouseenter click',function(){
+            cropFlag = 1;
+            $('#image-view').croppie({
+                viewport: {
+                    width:0.95*sx,
+                    height:0.95*sy
+                },
+                enableResize: true
+            });
+        });
+        });
+        $('body,html').animate({  
 			scrollTop: $scrollTo.outerHeight()
 		});
-		$('#image-view').fadeIn();
 	}
 });
 $('.change-box-btn').on('click',function(){
