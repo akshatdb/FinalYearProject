@@ -109,7 +109,7 @@ function sortList(slist){
         else
             return a[5]-b[5];
     });
-    return slist
+    return slist;
 }
 
 function findNumbers()
@@ -220,6 +220,7 @@ function findEquals()
                 if(xa-wa < xb && xa+wa+wa > xb+wb)
                 {
                     symlist[i][4] = '=';
+                    symlist[i][6] = '=';
                     symlist[i][0] = xa<xb?xa:xb;
                     symlist[i][1] = ya<yb?ya:yb;
                     symlist[i][2] = (xa+wa>xb+wb?(xa+wa):(xb+wb)) - symlist[i][0];
@@ -453,7 +454,7 @@ function isAlpha(slist,i)
     if(slist[i][4]=='a'||slist[i][4]=='b'||slist[i][4]=='c'||slist[i][4]=='y'||slist[i][4]=='z')
         return 1;
     if(slist[i][4]=='x')
-            if((i-1>=0 && (slist[i-1][4]=='+'||slist[i-1][4]=='x'||slist[i-1][4]=='-'))||(i+1<slist.length && (slist[i+1][4]=='+'||slist[i+1][4]=='x'||slist[i+1][4]=='-')))
+            if((i-1>=0 && (slist[i-1][4]=='+'||slist[i-1][4]=='x'||slist[i-1][4]=='-'))||(i+1<slist.length && (slist[i+1][4]=='+'||slist[i+1][4]=='x'||slist[i+1][4]=='-'||slist[i+1][4]=='=')))
                 return 1;
     return 0;
 }
@@ -935,7 +936,7 @@ Upload.prototype.progressHandling = function (event) {
 
 //Main
 $(document).ready(function(){
-$('#file').on('change',function(){
+    $('#file').on('change',function(){
 	if($('#file').val() != '')
 	{
 		var $container = $('body');
@@ -980,8 +981,13 @@ $('#file').on('change',function(){
             });
         });
         });
+        var factor;
+        if($(window).width() < 1024)
+            factor = 1.5;
+        else
+            factor = 1;
         $('body,html').animate({  
-			scrollTop: $scrollTo.outerHeight()
+			scrollTop: factor*$scrollTo.outerHeight()
 		});
 	}
 });

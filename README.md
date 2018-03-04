@@ -17,6 +17,7 @@ Version | Changes | Date of deployment
 0.3.3 | Added section to show recognized equations | 28-02-2018
 0.3.4 | Rest API endpoint added | 01-03-2018
 0.3.5 | Added cropping and faster algorithm for cropped images | 04-03-2018
+0.3.6 | Fixed lots of bugs, added image compression | 05-03-2018
 
 ## Heroku Buildpacks
 
