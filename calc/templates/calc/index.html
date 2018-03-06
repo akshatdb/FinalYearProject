@@ -113,7 +113,7 @@
 		$(this).blur();
 		if(cropFlag == 1)
 		{
-		$('#image-view').croppie('result','blob',0.8).then(function(blob) {
+		$('#image-view').croppie('result','blob',1).then(function(blob) {
    			// do something with cropped blob
 			var filename = $('#file')[0].files[0].name;
 			var filetype = $('#file')[0].files[0].type;

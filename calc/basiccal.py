@@ -158,7 +158,7 @@ def detect_fast(img):
 		numimg = img[b:b+d,a:a+c]
 		xr = float(c)/(c+d)
 		yr = float(d)/(c+d)
-		if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/30 and d<=h/30))  or ( c>=(3*d) and (d <= h/200)):
+		if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/40 or d<=h/40))  or ( c>=(3*d) and (d <= h/300)):
 			continue
 		imgr[b:b+d,a:a+c] = 255
 	kernel = np.ones((h/20,w/20),np.uint8)
@@ -252,10 +252,10 @@ def findbasic(img_url):
 	global imgx,imgy
 	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
 	image,imgx,imgy = scale_down(image)
-	img = preprocess_drop(image)
-	contours = detect_fast(img)
+	#img = preprocess_drop(image)
+	contours = detect_fast(image)
 	if contours == -1:
-		contours = detect_slow(img)
+		contours = detect_slow(image)
 	results = recognize(image,contours)
 	results.update({'image':{'x':imgx,'y':imgy}});
 	results.update({'imagename': img_url});
