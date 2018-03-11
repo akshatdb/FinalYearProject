@@ -410,6 +410,9 @@ i.github-icon:hover,i.github-icon:focus{
 		background-color:var(--color-btn-a);
 		color:white;
 	}
+	.answer-div{
+		font-size:20px;
+	}
 }
 @media (max-width:400px)
 {
@@ -488,6 +491,8 @@ i.github-icon:hover,i.github-icon:focus{
 	display: inline-block;
 }
 .answer-div{
+	box-sizing: border-box;
+	font-size: 12px;
 	width:100%;
 	padding:10px;
 	position:fixed;
@@ -613,4 +618,11 @@ body.overlay-open { overflow: hidden; }
 .not-rotate{
 	animation:rotate-anim-rev 0.5s linear 0s 1 normal;
 	animation-direction:forwards;
+}
+#equation-header{
+	font-size: 15px;
+	font-family: "moonl";
+	letter-spacing: 2px;
+	padding-bottom: 5px;
+	border-bottom:1px solid white;
 }

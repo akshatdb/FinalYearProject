@@ -514,14 +514,14 @@ function checkLinearEquations()
     var count = equationList.length;
     Object.keys(charList).forEach(function (key) {
         var value = charList[key]
-        if(value < equationList)
+        if(value < count)
             return false;
         if(value > 0)
         {
             varlist[key] = varcount++;
         }
     });
-    if(varcount > equationList)
+    if(varcount > count)
         return false;
     return true;
 }
@@ -762,7 +762,6 @@ function evaluateList()
               var X = Object.keys(varlist);
               var ans = numeric.solve(A,B);
               setEqResults(ans,X);
-              //solveLinearEquations();
             }
             else
                 console.log('invalid Equations');
