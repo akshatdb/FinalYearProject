@@ -230,12 +230,12 @@ def recognize(img, contours):
 	return result
 
 def init_conf():
-	modelc = load_model(abs_path + '/weightsc.h5')
+	modelc = load_model(abs_path + '/digits.h5')
 	modelc.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
 	graphc = tf.get_default_graph()
 	return modelc, graphc
 def init_char():
-	modeld = load_model(abs_path + '/weightsd.h5')
+	modeld = load_model(abs_path + '/all.h5')
 	modeld.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
 	graphd = tf.get_default_graph()
 	return modeld, graphd
