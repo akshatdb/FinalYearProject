@@ -41,9 +41,9 @@ function setEqResults(ans,X)
     result = '';
     for(var i = 0; i < ans.length; i++)
     {
-        result = result + ',' + X[i] + ' = ' + ans[i].toFixed(4);
+        result = result + '<div class="equation">' + X[i] + ' = ' + ans[i].toFixed(4) + '</div>';
     }
-    $('.answer').html(result.substr(1));
+    $('.answer').html(result);
 }
 
 function setRootsResults()
@@ -507,7 +507,6 @@ function findLinearEquations()
     if(tmp.length>0)
         equationList.push(tmp);
 }
-
 function checkLinearEquations()
 {
     var varcount = 0;

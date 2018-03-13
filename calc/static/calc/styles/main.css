@@ -492,7 +492,7 @@ i.github-icon:hover,i.github-icon:focus{
 }
 .answer-div{
 	box-sizing: border-box;
-	font-size: 12px;
+	font-size: 20px;
 	width:100%;
 	padding:10px;
 	position:fixed;
@@ -505,7 +505,7 @@ i.github-icon:hover,i.github-icon:focus{
 }
 .answer{
 	display:inline;
-	font-size:10px;
+	font-size:20px;
 	color:white;
 	text-align: center;
 	font-family:MONOSPACE;
@@ -625,4 +625,7 @@ body.overlay-open { overflow: hidden; }
 	letter-spacing: 2px;
 	padding-bottom: 5px;
 	border-bottom:1px solid white;
+}
+.equation{
+	text-align:left;
 }
