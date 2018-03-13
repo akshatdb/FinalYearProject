@@ -629,3 +629,7 @@ body.overlay-open { overflow: hidden; }
 .equation{
 	text-align:left;
 }
+#answer-header{
+	color:white;
+	border-bottom:1px solid white;
+}
