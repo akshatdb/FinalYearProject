@@ -894,7 +894,9 @@ Upload.prototype.doUpload = function () {
         success: function (data) {
             // your callback here
             $('#process-wrp').fadeOut('fast');
+            $('#process-wrp').contents().remove();
             processdata(data);
+            $('.answer-div').slideDown();
         },
         error: function (error) {
             // handle error

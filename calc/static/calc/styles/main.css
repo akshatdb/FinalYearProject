@@ -491,6 +491,7 @@ i.github-icon:hover,i.github-icon:focus{
 	display: inline-block;
 }
 .answer-div{
+	display:none;
 	box-sizing: border-box;
 	font-size: 20px;
 	width:100%;
