@@ -12,9 +12,9 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .basiccal import findbasic
-from .lineareq import findlinear, learn_model
-from .apilineareq import apifindlinear
+from convnet.basiccal import find_basic
+from convnet.lineareq import find_linear, learn_model
+from convnet.apilineareq import api_find_linear, api_learn_model
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
 
@@ -44,11 +44,11 @@ def process(request):
         if form.is_valid():
         	data = form.save()
         	if process_type == 0:
-        		msg = findlinear(str(data.image)) 
+        		msg = find_linear(str(data.image)) 
         	elif process_type == 1:
-        		msg = findlinear(str(data.image))
+        		msg = find_linear(str(data.image))
         	else:
-        		msg = findbasic(str(data.image))
+        		msg = find_basic(str(data.image))
     return JsonResponse(msg)
 
 #REST API 
@@ -63,9 +63,9 @@ def processapi(request):
         if form.is_valid():
             data = form.save()
             if process_type == 0:
-                msg = apifindlinear(str(data.image)) 
+                msg = api_find_linear(str(data.image)) 
             elif process_type == 1:
-                msg = apifindlinear(str(data.image))
+                msg = api_find_linear(str(data.image))
             else:
                 msg = process_type
     return JsonResponse(msg)

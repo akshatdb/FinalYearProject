@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from scipy.io import loadmat
 from keras.models import load_model
+from keras.optimizers import SGD
 from PIL import Image
 import os
 from django.conf import settings
@@ -33,6 +34,26 @@ digits = {
 	15:'z',
 	16:'+',
 	17:'-',
+}
+digits_rev = {
+	'0':0,
+	'1':1,
+	'2':2,
+	'3':3,
+	'4':4,
+	'5':5,
+	'6':6,
+	'7':7,
+	'8':8,
+	'9':9,
+	'a':10,
+	'b':11,
+	'c':12,
+	'x':13,
+	'y':14,
+	'z':15,
+	'+':16,
+	'-':17,
 }
 alpha = {
 	0:'0',
@@ -147,35 +168,11 @@ def preprocess_drop(img):
  	img = cv2.erode(img,kernel,1)
 	return img
 
-def detect_fast(img):
-	result = []
-	imgr = np.zeros(img.shape, np.uint8)
-	h,w = img.shape
-	img = preprocess_drop(img)
-	img, cnts, hierarchy = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-	for cnt in cnts:
-		a,b,c,d = cv2.boundingRect(cnt)
-		numimg = img[b:b+d,a:a+c]
-		xr = float(c)/(c+d)
-		yr = float(d)/(c+d)
-		if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/40 or d<=h/40))  or ( c>=(3*d) and (d <= h/300)):
-			continue
-		imgr[b:b+d,a:a+c] = 255
-	kernel = np.ones((h/20,w/20),np.uint8)
-	imgr =  cv2.dilate(imgr,kernel,iterations = 4)
-	imgr, contours, hierarchy = cv2.findContours(imgr,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-	for contour in contours:
-		x,y,w,h = cv2.boundingRect(contour)
-		if w == img.shape[1] and h == img.shape[0]:
-			return -1
-		result.append([x,y,w,h])
-	return result
-
-def detect_slow(img):
+def detect(img):
 	x,y = img.shape
 	imgr = np.zeros(img.shape, np.uint8)
-	a = [x/8,x/5]
-	for t in range(2):
+	a = [x/15,x/8,x/5]
+	for t in range(3):
 		boxsize = [a[t], a[t]]
 		i = 0 
 		j = 0
@@ -231,31 +228,40 @@ def recognize(img, contours):
 
 def init_conf():
 	modelc = load_model(abs_path + '/digits.h5')
-	modelc.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
+	try:
+		modelc.load_weights(abs_path + '/weightsc.h5')
+	except:
+		modelc.save_weights(abs_path + '/weightsc.h5')
+	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
+	modelc.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphc = tf.get_default_graph()
 	return modelc, graphc
 def init_char():
 	modeld = load_model(abs_path + '/all.h5')
-	modeld.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
+	try:
+		modeld.load_weights(abs_path + '/weightsd.h5')
+	except:
+		modelc.save_weights(abs_path + '/weightsd.h5')
+	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
+	modeld.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphd = tf.get_default_graph()
 	return modeld, graphd
 def initdiv():
 	modeldiv = load_model(abs_path + '/divider.h5')
-	modeldiv.compile(loss='categorical_crossentropy',optimizer='adadelta',metrics=['accuracy'])
+	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
+	modeldiv.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphdiv = tf.get_default_graph()
 	return modeldiv, graphdiv
 
 modelc,graphc = init_conf()
 modeld,graphd = init_char()
 modeldiv, graphdiv = initdiv()
-def findbasic(img_url):
+def api_find_linear(img_url):
 	global imgx,imgy
 	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
 	image,imgx,imgy = scale_down(image)
-	#img = preprocess_drop(image)
-	contours = detect_fast(image)
-	if contours == -1:
-		contours = detect_slow(image)
+	img = preprocess(image)
+	contours = detect(img)
 	results = recognize(image,contours)
 	results.update({'image':{'x':imgx,'y':imgy}});
 	results.update({'imagename': img_url});
@@ -279,7 +285,9 @@ def learnmat(filename,imgx,val):
 	yn[s] = val
 	savemat(abs_path + '/data/' + filename[0:-4],{'X':xn,'y':yn})
 
-def learn_model(imgurl,x,y,w,h,val):
+def api_learn_model(imgurl,x,y,w,h,val):
+	classesd = 18
+	classesc = 13
 	image = cv2.imread(im_path+'/'+imgurl,cv2.IMREAD_GRAYSCALE)
 	image, imgx, imgy = scale_down(image)
 	x = int(x*imgx)
@@ -292,17 +300,18 @@ def learn_model(imgurl,x,y,w,h,val):
 	img = preprocess_drop(img)
 	img = mnist_scale(img,xr,yr,28)
 	img = img.reshape((28,28))
-	cv2.imwrite('asd.jpg',img)
-	#cv2.imwrite(im_path + '/new/' + str(x) + str(y) + str(w) +str(h) + '-' + val + '.jpg',img)
-	'''imgx = img.reshape((1,1,784))
-	try:
-		val = revclasses[val]
-		msg = 'ok'
-	except:
-		msg = 'unsupported value'
-		val = -1
-	if val!=-1:
-		learnmat('digitsnew.mat',imgx,val)
-	else:
-		learnmat('divnew.mat',imgx,0)'''
-	return 'yes'
+	img = img.reshape((28, 28, 1)).astype('float32')
+	img = np.array([img])
+	img = img/255
+	tmpd = np.zeros((1,classesd))
+	tmpd[0][digits_rev[val]] = 1
+	with graphd.as_default():
+		modeld.fit(img,tmpd, epochs = 1)
+	if digits_rev[val] <= 9 or digits_rev[val] == 13  or digits_rev[val] == 16  or digits_rev[val] == 17:
+		tmpc = np.zeros((1,classesc))
+		tmpc[0][revclasses[val]] = 1
+		with graphc.as_default():
+			modelc.fit(img,tmpc, epochs = 1)
+	modeld.save_weights(abs_path + '/weightsd.h5', overwrite=True)
+	modelc.save_weights(abs_path + '/weightsc.h5', overwrite=True)
+	return 'ok'

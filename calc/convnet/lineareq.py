@@ -248,7 +248,7 @@ def initdiv():
 modelc,graphc = init_conf()
 modeld,graphd = init_char()
 modeldiv, graphdiv = initdiv()
-def findlinear(img_url):
+def find_linear(img_url):
 	global imgx,imgy
 	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
 	image,imgx,imgy = scale_down(image)
