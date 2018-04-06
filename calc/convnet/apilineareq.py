@@ -231,7 +231,7 @@ def init_conf():
 	try:
 		modelc.load_weights(abs_path + '/weightsc.h5')
 	except:
-		modelc.save_weights(abs_path + '/weightsc.h5')
+		modelc.save_weights(abs_path + '/weightsc.h5', overwrite=True)
 	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
 	modelc.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphc = tf.get_default_graph()
@@ -241,7 +241,7 @@ def init_char():
 	try:
 		modeld.load_weights(abs_path + '/weightsd.h5')
 	except:
-		modelc.save_weights(abs_path + '/weightsd.h5')
+		modelc.save_weights(abs_path + '/weightsd.h5', overwrite=True)
 	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
 	modeld.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphd = tf.get_default_graph()
