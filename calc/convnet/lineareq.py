@@ -255,8 +255,8 @@ def find_linear(img_url):
 	img = preprocess(image)
 	contours = detect(img)
 	results = recognize(image,contours)
-	results.update({'image':{'x':imgx,'y':imgy}});
-	results.update({'imagename': img_url});
+	results.update({'image':{'x':imgx,'y':imgy}})
+	results.update({'imagename': img_url})
 	return results
 
 def learnmat(filename,imgx,val):

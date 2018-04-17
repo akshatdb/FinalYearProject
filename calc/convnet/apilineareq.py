@@ -231,7 +231,8 @@ def init_conf():
 	try:
 		modelc.load_weights(abs_path + '/weightsc.h5')
 	except:
-		modelc.save_weights(abs_path + '/weightsc.h5', overwrite=True)
+		print 'what'
+		#modelc.save_weights(abs_path + '/weightsc.h5', overwrite=True)
 	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
 	modelc.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphc = tf.get_default_graph()
@@ -241,7 +242,8 @@ def init_char():
 	try:
 		modeld.load_weights(abs_path + '/weightsd.h5')
 	except:
-		modelc.save_weights(abs_path + '/weightsd.h5', overwrite=True)
+		print 'what'
+		#modelc.save_weights(abs_path + '/weightsd.h5', overwrite=True)
 	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
 	modeld.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphd = tf.get_default_graph()
@@ -263,8 +265,8 @@ def api_find_linear(img_url):
 	img = preprocess(image)
 	contours = detect(img)
 	results = recognize(image,contours)
-	results.update({'image':{'x':imgx,'y':imgy}});
-	results.update({'imagename': img_url});
+	results.update({'image':{'x':imgx,'y':imgy}})
+	results.update({'imagename': img_url})
 	return results
 
 def learnmat(filename,imgx,val):
