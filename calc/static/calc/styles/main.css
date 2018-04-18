@@ -584,7 +584,7 @@ i.github-icon:hover,i.github-icon:focus{
 }
 body.overlay-open { overflow: hidden; }
 
-#div-img{
+#div-img, #div-bg{
 	position:fixed;
 	top:0px;
 	left:0px;
@@ -592,6 +592,12 @@ body.overlay-open { overflow: hidden; }
 	margin:auto;
 	background-position: center;
 	background-size: cover;
+}
+#div-bg{
+	z-index: 2;
+}
+#div-img{
+	z-index: 3;
 }
 .num-box{
 	background:rgba(0, 0, 0, 0.39);

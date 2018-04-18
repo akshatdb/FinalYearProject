@@ -15,6 +15,26 @@ global imgx,imgy
 blankim = np.zeros((28,28))
 kernel = np.ones((2,2),np.uint8)
 
+rotateDict = {
+	1:'rotate(0deg)',
+	2:'rotate(0deg)',
+	3:'rotate(180deg)',
+	4:'rotate(0deg)',
+	5:'rotate(0deg)',
+	6:'rotate(90deg)',
+	7:'rotate(0deg)',
+	8:'rotate(-90deg)',
+}
+flipDict = {
+	1:0,
+	2:0,
+	3:0,
+	4:0,
+	5:0,
+	6:1,
+	7:0,
+	8:1,
+}
 digits = {
 	0:'0',
 	1:'1',
@@ -251,11 +271,16 @@ modeldiv, graphdiv = initdiv()
 def find_linear(img_url):
 	global imgx,imgy
 	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
+	imtmp = Image.open(im_path+'/'+img_url)
+	exifdata = imtmp._getexif()
 	image,imgx,imgy = scale_down(image)
 	img = preprocess(image)
 	contours = detect(img)
 	results = recognize(image,contours)
-	results.update({'image':{'x':imgx,'y':imgy}})
+	try:
+		results.update({'image':{'x':imgx,'y':imgy,'angle':rotateDict[exifdata[274]],'flip':flipDict[exifdata[274]]}})
+	except:
+		results.update({'image':{'x':imgx,'y':imgy,'angle':rotateDict[1],'flip':flipDict[1]}})
 	results.update({'imagename': img_url})
 	return results
 

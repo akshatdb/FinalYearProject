@@ -711,6 +711,8 @@ function isValid(val) {
 function processdata(data) {
     osizex = sizex = data['image']['x'];
     osizey = sizey = data['image']['y'];
+    angle = data['image']['angle'];
+    flipFlag = data['image']['flip'];
     imagename = data['imagename'];
     newsize = scaleSizes(sizex, sizey);
     sizex = newsize[0];
@@ -729,8 +731,25 @@ function processdata(data) {
     $('#div-img').css({
         'width': sizex,
         'height': sizey,
-        'background-image': 'url(' + URL.createObjectURL(file) + ')'
     });
+    if(!flipFlag){
+    $('#div-bg').css({
+        'width': sizex,
+        'height': sizey,
+        'transform':angle,
+        'top': 0
+    });
+    }
+    else
+    {
+    $('#div-bg').css({
+        'width': sizey,
+        'height': sizex,
+        'transform':angle,
+        'top': (sizey-sizex)/2
+    });        
+    }
+    $("#div-bg").attr('src',URL.createObjectURL(file))
     drawList(backuplist, 'digits');
     evaluateList();
     $('.num-box.digits').on('click', function () {
@@ -808,6 +827,7 @@ Upload.prototype.doUpload = function () {
             $('#progress-wrp').fadeOut('fast');
             $('#failed-wrp').fadeIn('fast');
             $('.overlay').delay(2500).fadeOut('slow');
+            location.reload();
         },
         async: true,
         data: formData,
