@@ -527,7 +527,6 @@ function findPowers(rlist) {
     for (var i = 0; i < symlist.length; i++) {
         if (isNaN(symlist[i][4])) {
             if (i + 1 < symlist.length && !(isNaN(symlist[i + 1][4]))) {
-                console.log((symlist[i + 1][4]));
                 xn = symlist[i + 1][0];
                 yn = symlist[i + 1][1];
                 wn = symlist[i + 1][2];
@@ -536,7 +535,8 @@ function findPowers(rlist) {
                 ys = symlist[i][1];
                 ws = symlist[i][2];
                 hs = symlist[i][3];
-                if ((yn + hn) < (ys + hs / 2) && (xn < (xs + ws + hs)) && (yn + hn > (ys - 0.2 * hs)) && (xn > (xs + ws - 0.4 * hs))) {
+                console.log('for ' + symlist[i + 1][4] +  ' = ' + ((xn > (xs + ws - 0.6 * hs))));
+                if ((yn + hn) < (ys + 3*hs / 4) && (xn < (xs + ws + hs)) && (yn + hn > (ys - 0.2 * hs)) && (xn > (xs + ws - 0.6 * hs))) {
                     symlist[i][8] = Number(symlist[i + 1][4]);
                     symlist.splice(i + 1, 1);
                 }
