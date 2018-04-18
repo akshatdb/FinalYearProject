@@ -259,6 +259,8 @@ def find_basic(img_url):
 	results = recognize(image,contours)
 	results.update({'image':{'x':imgx,'y':imgy}});
 	results.update({'imagename': img_url});
+	host = os.environ.get('HOSTNAME')
+	results.update({'path':host + '/media/' + img_url})
 	return results
 
 def learnmat(filename,imgx,val):
