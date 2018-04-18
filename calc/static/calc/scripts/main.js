@@ -527,6 +527,7 @@ function findPowers(rlist) {
     for (var i = 0; i < symlist.length; i++) {
         if (isNaN(symlist[i][4])) {
             if (i + 1 < symlist.length && !(isNaN(symlist[i + 1][4]))) {
+                console.log((symlist[i + 1][4]));
                 xn = symlist[i + 1][0];
                 yn = symlist[i + 1][1];
                 wn = symlist[i + 1][2];
@@ -648,7 +649,7 @@ function evaluateList() {
     // for future use
     relist = $.extend(true, [], symlist);
     findNumbers();
-    findPowers(symlist, relist);
+    findPowers(relist);
     numlist = $.extend(true, [], symlist);
     drawList(symlist, "numbers");
     $(".numbers").hide();
@@ -746,8 +747,11 @@ function processdata(data) {
         'width': sizey,
         'height': sizex,
         'transform':angle,
-        'top': (sizey-sizex)/2
-    });        
+        'top': (sizey-sizex)/2,
+    });  
+    if (window.matchMedia('(max-width: 767px)').matches) {
+        $('#div-bg').css({'left':-(sizey-sizex)/2 + $('#div-img').offset().left});
+    }      
     }
     $("#div-bg").attr('src',URL.createObjectURL(file))
     drawList(backuplist, 'digits');
