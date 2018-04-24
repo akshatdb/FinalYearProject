@@ -19,6 +19,7 @@ Version | Changes | Date of deployment
 0.3.5 | Added cropping and faster algorithm for cropped images | 04-03-2018
 0.3.6 | Fixed lots of bugs, added image compression | 05-03-2018
 0.3.7 | Changed css, added learning again | 07-04-2018
+0.3.8 | Added support for 43 different characters | 24-04-2018
 
 ## Heroku Buildpacks
 
