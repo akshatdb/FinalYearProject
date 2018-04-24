@@ -269,6 +269,7 @@ modelc,graphc = init_conf()
 modeld,graphd = init_char()
 modeldiv, graphdiv = initdiv()
 def find_linear(img_url):
+	print 'linear'
 	global imgx,imgy
 	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
 	imtmp = Image.open(im_path+'/'+img_url)

@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from convnet.basiccal import find_basic
 from convnet.lineareq import find_linear, learn_model
 from convnet.apilineareq import api_find_linear, api_learn_model
+from convnet.ocr import check_img
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
 
@@ -46,7 +47,7 @@ def process(request):
         	if process_type == 0:
         		msg = find_linear(str(data.image)) 
         	elif process_type == 1:
-        		msg = find_linear(str(data.image))
+        		msg = check_img(str(data.image))
         	else:
         		msg = find_basic(str(data.image))
     return JsonResponse(msg)
