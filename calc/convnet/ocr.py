@@ -353,8 +353,8 @@ def learnmat(filename,imgx,val):
 	yn[s] = val
 	savemat(abs_path + '/data/' + filename[0:-4],{'X':xn,'y':yn})
 
-def learn_model(imgurl,x,y,w,h,val):
-	classesd = 18
+def learn_img(imgurl,x,y,w,h,val):
+	classesd = 43
 	classesc = 13
 	image = cv2.imread(im_path+'/'+imgurl,cv2.IMREAD_GRAYSCALE)
 	image, imgx, imgy = scale_down(image)
@@ -366,18 +366,16 @@ def learn_model(imgurl,x,y,w,h,val):
 	yr = float(h)/(w+h)
 	img = image[y:y+h,x:x+w]
 	img = preprocess_drop(img)
-	img = mnist_scale(img,xr,yr,28)
-	img = img.reshape((28,28))
-	img = img.reshape((28, 28, 1)).astype('float32')
-	img = np.array([img])
-	img = img/255
-	tmpd = np.zeros((1,classesd))
-	tmpd[0][digits_rev[val]] = 1
-	with graphd.as_default():
-		modeld.fit(img,tmpd, epochs = 1)
-	if digits_rev[val] <= 9 or digits_rev[val] == 31  or digits_rev[val] == 34  or digits_rev[val] == 35:
-		tmpc = np.zeros((1,classesc))
-		tmpc[0][revclasses[val]] = 1
-		with graphc.as_default():
-			modelc.fit(img,tmpc, epochs = 1)
+	imgd = mnist_scale(img,xr,yr,32, 32)
+	imgd = imgd.reshape((32, 32, 1)).astype('float32')
+	imgd = np.array([imgd])
+	imgd = imgd/255
+	imgc = mnist_scale(img,xr,yr,28, 28)
+	imgc = imgc.reshape((28, 28, 1)).astype('float32')
+	imgc = np.array([imgc])
+	imgc = imgc/255
+	print val
+	return
+	learnmat('all.mat',tmpd, val)
+	learnmat('some.mat',tmpc, val)
 	return 'ok'

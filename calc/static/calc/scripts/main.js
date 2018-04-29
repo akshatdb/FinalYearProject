@@ -10,6 +10,7 @@ var imagename, osizex, osizey, change_list = {},
     backuplist, pows = [],
     infinityFlag = 0,
     nonLinearFlag = 0,
+    undefinedFlag = 0,
     roots = [],
     toggleNumbers, numlist;
 var file, cropFlag = 0;
@@ -23,6 +24,7 @@ function setInitValues() {
     pows = $.extend(true, [], []);
     infinityFlag = 0;
     nonLinearFlag = 0;
+    undefinedFlag = 0;
     roots = $.extend(true, [], []);
 }
 
@@ -32,6 +34,12 @@ function setResult() {
     if (infinityFlag == 1) {
         $('.answer').html('Divide by zero error!!');
         return;
+    }
+    for(var i = 0; i < symlist.length; i++)
+        if(symlist[i][4]==null)
+            undefinedFlag = 1;
+    if (undefinedFlag == 1) {
+        $('.answer').html('Incorrect detection');
     }
     for (var i = 0; i < symlist.length; i++) {
         if (!isNaN(symlist[i][4]) && symlist[i][9] == 0) {
@@ -46,6 +54,13 @@ function setEqResults(ans, X) {
     $('#more-btn').show();
     printEquations();
     result = '';
+    for(var i = 0; i < ans.length; i++)
+        if(ans[i]==null || isNaN(ans[i]) || X[i] == null)
+            undefinedFlag = 1;
+    if (undefinedFlag == 1) {
+        $('.answer').html('Incorrect detection');
+        return;
+    }
     for (var i = 0; i < ans.length; i++) {
         result = result + '<div class="equation">' + X[i] + ' = ' + ans[i].toFixed(4) + '</div>';
     }
@@ -56,6 +71,10 @@ function setRootsResults() {
     $('#more-btn').show();
     printEquations();
     result = '';
+    if (undefinedFlag == 1) {
+        $('.answer').html('Incorrect detection');
+        return;
+    }
     for (var i = 0; i < roots.length; i++) {
         result = result + ' , ' + 'Roots for equation ' + (i + 1) + ' = ' + roots;
     }
@@ -535,7 +554,6 @@ function findPowers(rlist) {
                 ys = symlist[i][1];
                 ws = symlist[i][2];
                 hs = symlist[i][3];
-                console.log('for ' + symlist[i + 1][4] +  ' = ' + ((xn > (xs + ws - 0.6 * hs))));
                 if ((yn + hn) < (ys + 3*hs / 4) && (xn < (xs + ws + hs)) && (yn + hn > (ys - 0.2 * hs)) && (xn > (xs + ws - 0.6 * hs))) {
                     symlist[i][8] = Number(symlist[i + 1][4]);
                     symlist.splice(i + 1, 1);
@@ -552,7 +570,7 @@ function findPowers(rlist) {
                 wn = symlist[j][2];
                 hn = symlist[j][3];
                 if (!isNaN(symlist[j][4]))
-                    if ((yn + hn) < (ys + hs / 2) && (xn < (xs + ws + hs)) && (yn + hn > (ys - 0.2 * hs)) && (xn > (xs + ws - hs / 4))) {
+                    if ((yn + hn) < (ys + hs / 2) && (xn < (xs + ws + hs/2)) && (yn + hn > (ys - 0.2 * hs)) && (xn > (xs + ws - hs / 4))) {
                         symlist[i][8] = Number(symlist[j][4]);
                         symlist.splice(j, 1);
                         break;
@@ -582,8 +600,7 @@ function getOneCoefficient(i, j) {
 }
 
 function countVarPowers() {
-    var m = [],
-        n, tmp = [];
+    var m = [],n, tmp = [];
     for (var i = 0; i < equationList.length; i++) {
         n = getMaxPower(i);
         tmp.push(n);
@@ -617,9 +634,13 @@ function solveQuadratic(coeffList) {
     if ((b * b - 4 * a * c) >= 0) {
         var r1 = (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
         var r2 = (-b - Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+        if(r1==null||r2==null||isNaN(r1)||isNaN(r2))
+            undefinedFlag = 1;
         roots.push(r1.toFixed(2) + ', ' + r2.toFixed(2));
     } else {
         var real = (-b) / (2 * a);
+        if(real==null || isNaN(real))
+            undefinedFlag = 1;
         var complex = Math.sqrt(-(b * b - 4 * a * c)) / (2 * a);
         roots.push(real.toFixed(2) + ' &plusmn; ' + complex.toFixed(2) + 'i');
     }
@@ -640,19 +661,7 @@ function solveHigher(coeffList) {
     }
     roots.push(ans.substr(1));
 }
-
-function evaluateList() {
-    cutDownYs();
-    symlist = sortList(symlist);
-    giveId();
-    findEquals();
-    // for future use
-    relist = $.extend(true, [], symlist);
-    findNumbers();
-    findPowers(relist);
-    numlist = $.extend(true, [], symlist);
-    drawList(symlist, "numbers");
-    $(".numbers").hide();
+function mainCalculations(){
     if (countAlpha()) {
         findLinearEquations();
         countVarPowers()
@@ -682,25 +691,39 @@ function evaluateList() {
         $('.change-box-btn').show();
         findResult();
         setResult();
-        bgcolors = ['rgba(0, 0, 0, 0.39)', 'rgba(241, 241, 241, 0.35)'];
-        $('.num-box.numbers').on('click', function () {
-            if (isNaN(numlist[$(this).data('id')][4]))
-                return;
-            symlist = $.extend(true, [], numlist);
-            toggle = (symlist[$(this).data('id')][9] + 1) % 2;
-            symlist[$(this).data('id')][9] = toggle;
-            $(this).css({
-                'background-color': bgcolors[toggle]
-            });
-            numlist = $.extend(true, [], symlist);
-            findResult();
-            setResult();
+    }   
+}
+
+function evaluateList() {
+    cutDownYs();
+    symlist = sortList(symlist);
+    giveId();
+    findEquals();
+    // for future use
+    relist = $.extend(true, [], symlist);
+    findNumbers();
+    findPowers(relist);
+    numlist = $.extend(true, [], symlist);
+    drawList(symlist, "numbers");
+    $(".numbers").hide();
+    mainCalculations();
+    bgcolors = ['rgba(0, 0, 0, 0.39)', 'rgba(241, 241, 241, 0.35)'];
+    $('.num-box.numbers').on('click', function () {
+        if (isNaN(numlist[$(this).data('id')][4]))
+            return;
+        symlist = $.extend(true, [], numlist);
+        toggle = (symlist[$(this).data('id')][9] + 1) % 2;
+        symlist[$(this).data('id')][9] = toggle;
+        $(this).css({
+            'background-color': bgcolors[toggle]
         });
-    }
+        numlist = $.extend(true, [], symlist);
+        mainCalculations();
+    });
 }
 
 function isValid(val) {
-    if (val.toLowerCase() == 'x' || val.toLowerCase() == 'y' || val.toLowerCase() == 'z' || val.toLowerCase() == 'a' || val.toLowerCase() == 'b' || val.toLowerCase() == 'c')
+    if (val.toLowerCase() == 'x' || val.toLowerCase() == 'y' || val.toLowerCase() == 'z' || val.toLowerCase() == 'a' || val.toLowerCase() == 'b' || val.toLowerCase() == 'c' || val.toLowerCase() == 'd' || val.toLowerCase() == 'e' || val.toLowerCase() == 'f' || val.toLowerCase() == 'g' || val.toLowerCase() == 'h' || val.toLowerCase() == 'i' || val.toLowerCase() == 'j' || val.toLowerCase() == 'k' || val.toLowerCase() == 'l' || val.toLowerCase() == 'm' || val.toLowerCase() == 'n' || val.toLowerCase() == 'o' || val.toLowerCase() == 'p' || val.toLowerCase() == 'q' || val.toLowerCase() == 'r' || val.toLowerCase() == 's' || val.toLowerCase() == 't' || val.toLowerCase() == 'u' || val.toLowerCase() == 'v' || val.toLowerCase() == 'w' || val.toLowerCase() == '(' || val.toLowerCase() == ')' || val.toLowerCase() == '[' || val.toLowerCase() == ']' || val.toLowerCase() == '=')
         return 1;
     if (!isNaN(val))
         return 1;
@@ -718,6 +741,20 @@ function processdata(data) {
     newsize = scaleSizes(sizex, sizey);
     sizex = newsize[0];
     sizey = newsize[1];
+    var avgw = 0;
+    var avgh = 0;
+    var ccount = 0;
+    for (var key in data) {
+        if (key!= 'image' && key != 'imagename') {
+            wa = data[key]['w'] * sizex + (data[key]['w'] * sizex) / 3;
+            ha = data[key]['h'] * sizey + (data[key]['h'] * sizey) / 3;
+            avgw = avgw + wa;
+            avgh = avgh + ha;
+            ccount++;
+        }
+    }
+    avgw = avgw/ccount;
+    avgh = avgh/ccount;
     for (var key in data) {
         if (key != 'image' && key != 'imagename') {
             xa = data[key]['x'] * sizex - (data[key]['w'] * sizex) / 6;
@@ -725,9 +762,11 @@ function processdata(data) {
             wa = data[key]['w'] * sizex + (data[key]['w'] * sizex) / 3;
             ha = data[key]['h'] * sizey + (data[key]['h'] * sizey) / 3;
             va = data[key]['val'];
-            symlist.push([xa, ya, wa, ha, va, Number(key), va, [], '\0', 0]);
+            if(wa > 0.3*avgw || ha > 0.3*avgh)
+                symlist.push([xa, ya, wa, ha, va, Number(key), va, [], '\0', 0]);
         }
     }
+
     backuplist = $.extend(true, [], symlist);
     $('#div-img').css({
         'width': sizex,
@@ -782,7 +821,7 @@ function processdata(data) {
             'w': symlist[i][2] / sizex,
             'h': symlist[i][3] / sizey,
             'iname': imagename,
-            'val': val
+            'val': val,
         }
         clen++;
         evaluateList();

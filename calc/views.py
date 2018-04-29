@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from convnet.basiccal import find_basic
 from convnet.lineareq import find_linear, learn_model
 from convnet.apilineareq import api_find_linear, api_learn_model
-from convnet.ocr import check_img
+from convnet.ocr import check_img, learn_img
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
 
@@ -73,7 +73,9 @@ def processapi(request):
 
 def learn(request):
     data = json.loads(request.body)
+    print data
     lenc = data['length']
+    process_type =data['req_type']
     for i in range(lenc):
         x = data[str(i)]['x']
         y = data[str(i)]['y']
@@ -81,5 +83,8 @@ def learn(request):
         h = data[str(i)]['h']
         imgurl = data[str(i)]['iname']
         val = data[str(i)]['val']
-        msg = learn_model(imgurl,float(x),float(y),float(w),float(h),val)
+        if process_type == 0:
+            learn_model(imgurl,float(x),float(y),float(w),float(h),val)
+        elif process_type == 1:
+            msg = learn_img(imgurl,float(x),float(y),float(w),float(h),val)
     return HttpResponse('ok');

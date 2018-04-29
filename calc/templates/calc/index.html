@@ -114,7 +114,7 @@
 		</div>
 	</div>
 	<div class="footer">
-		<div class="footer-left">Version 0.3.8 &nbsp;|&nbsp; <a class="link-new" href="{% url 'admin:index' %}">Admin Panel</a></div>
+		<div class="footer-left">Version 0.3.9 &nbsp;|&nbsp; <a class="link-new" href="{% url 'admin:index' %}">Admin Panel</a></div>
 		<div class="footer-right"><a href="https://github.com/akshatdb/FinalYearProject"><i class="fa fa-github github-icon"></i></a></div>
 	</div>
 	<script>
@@ -181,7 +181,7 @@ $(document).ready(function () {
                 var filename = $('#file')[0].files[0].name;
                 var filetype = $('#file')[0].files[0].type;
                 file = new File([blob], filename);
-                var reqt = 2;
+                var reqt = 0;
                 var addr = "{% url 'calc:process' %}";
                 var csrf = $('[name="csrfmiddlewaretoken"]').val()
                 var upload = new Upload(file,addr,reqt,csrf);
@@ -194,7 +194,7 @@ $(document).ready(function () {
             }
             else{
                 file = $('#file')[0].files[0];
-                var reqt = 1;
+                var reqt = 0;
                 var addr = "{% url 'calc:process' %}";
                 var csrf = $('[name="csrfmiddlewaretoken"]').val()
                 var upload = new Upload(file,addr,reqt,csrf);
@@ -224,6 +224,7 @@ $(document).ready(function () {
 		$('#feed-btn').on('click',function(){
 			$('#feed-btn').fadeOut();
             change_list['length'] = clen;
+            change_list['req_type'] = 0;
             $.ajax({
                 type: "POST",
                 url: "{% url 'calc:learn' %}",
