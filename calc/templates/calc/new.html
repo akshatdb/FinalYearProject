@@ -17,6 +17,9 @@
 	<link rel="icon" href="{% static 'calc/images/logo.png' %}">
 </head>
 <body>
+    <div class="hidden-div">
+        <canvas id="canvas" width="640" height="480"></canvas>
+    </div>
 	<div class="overlay">
 		<div id="progress-wrp">
     		<div class="progress-bar"></div>
@@ -60,21 +63,14 @@
 	</div>
 	<div class="main">
 		<div class="row form-div">
-			<div class="form">
-				<form enctype="multipart/form-data" id="form-img" class="form-class" action="{% url 'calc:process' %}" method="post">
-					{% csrf_token %}
-					<div id="img-box"><img id="image-view"/><div class='image-crop'></div></div>
-					<input type="file" id="file" name="image" class="inputfile" required accept="image/*;capture=camera"/>
-					<label for="file" id="file-upload-label"><i class="fa fa-camera-retro" style="margin-right:10px"></i>
-                    Attach a file</label>
-                    <label for="file" id="file-upload-label-mobile"><i class="fa fa-camera"></i></label>
-					<input type="submit" value="Upload Image" id="submit-btn">
-				</form>
+			<div class="form-vid">
+                <video id="video" autoplay></video>
+                <div id="cap-btn"><button id="snap"><i class="fa fa-camera-retro"></i></button></div>
 			</div>
 		</div>
 		<div class="row choice-div">
 			<div class="column-4 help-col">
-				<button class="input-btn" data-value=1><i class="fa fa-camera-retro" style="margin-right:10px"></i>Solve</button>
+				<button class="input-btn" id="snap" data-value=1><i class="fa fa-camera-retro" style="margin-right:10px"></i>Snap Photo</button>
 			</div>
 		</div>
 		<div class="row help-div">
@@ -118,6 +114,60 @@
 		<div class="footer-right"><a href="https://github.com/akshatdb/FinalYearProject"><i class="fa fa-github github-icon"></i></a></div>
 	</div>
 	<script>
+        //Video Script
+        var video = document.getElementById('video');
+        if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                // Not adding `{ audio: true }` since we only want video now
+                navigator.mediaDevices.getUserMedia({ video: {        
+                    facingMode: ['environment'],
+                    height: {ideal: 1080},
+                    width: {ideal: 1920}
+                    } 
+                }).then(function(stream) {
+                    track = stream.getVideoTracks()[0];
+                    try {
+                    video.srcObject = stream;
+                }
+                catch(err){
+                    video.src = URL.createObjectURL(stream);
+                }
+                video.play();
+            });
+        }
+    // Elements for taking the snapshot
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var video = document.getElementById('video');
+
+    // Trigger photo take
+    document.getElementById("snap").addEventListener("click", function() {
+        var imageCaptureConfig = {
+            fillLightMode: "flash", /* or "flash" */
+            focusMode: "continuous"
+        };
+                imageCapture = new ImageCapture(track);
+                imageCapture.setOptions(imageCaptureConfig)
+                .catch(err => console.error('setOptions(' + JSON.stringify(imageCaptureConfig) + ') failed: ', err));
+                context.drawImage(video, 0, 0, 640, 480);
+                context.fillRect(50,50,50,50);
+                imgfile = canvas.toDataURL('image/jpg');
+                var blobBin = atob(imgfile.split(',')[1]);
+                var array = [];
+                for(var i = 0; i < blobBin.length; i++) {
+                    array.push(blobBin.charCodeAt(i));
+                }
+                var file=new Blob([new Uint8Array(array)], {type: 'image/jpg'});
+                var reqt = 0;
+                var addr = "{% url 'calc:processapi' %}";
+                var csrf = $('[name="csrfmiddlewaretoken"]').val()
+                var upload = new Upload(file,addr,0,csrf);
+                // maby check size or type here with upload.getSize() and upload.getType()
+                $('#failed-wrp').hide('fast');
+                // execute upload
+                $('#image-view').attr('src',file);
+                upload.doUpload();
+    });
+
 //Main
 $(document).ready(function () {
     $('#file').on('change', function () {

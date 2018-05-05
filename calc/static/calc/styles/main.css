@@ -729,3 +729,36 @@ body.overlay-open { overflow: hidden; }
 	width:20%;
 	height:20%;
 }
+.form-vid{
+	position:fixed;
+	width:100%;
+	height: 80vh;
+	top: 10vh;
+}
+#video {
+	position: fixed;
+	width:100%;
+	height:80%;
+}
+#snap {
+	color:var(--color-b);
+	width:30px;
+	height:30px;
+	padding:5px;
+	background: white;
+	border:none;
+	border-radius: 30px;
+}
+#snap:hover{
+	background-color: white;
+	cursor: pointer;
+}
+#cap-btn{
+	position:absolute;
+	width:100%;
+	bottom:10vh;
+	text-align: center;
+}
+.hidden-div{
+	display:none;
+}

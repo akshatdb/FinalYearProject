@@ -7,9 +7,11 @@ from django.views import generic
 from django.utils import timezone
 from django.contrib import messages
 import json
+import re
+import base64
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from convnet.basiccal import find_basic
@@ -20,10 +22,12 @@ from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
 
 def index(request):
-	form = FeedbackForm()
-	return render(request, 'calc/index.html', {'form': form})
-
-
+    form = FeedbackForm()
+    print request.META['HTTP_USER_AGENT']
+    if request.META['HTTP_USER_AGENT'].find('Android')==-1 and request.META['HTTP_USER_AGENT'].find('iPhone')==-1:
+        return render(request, 'calc/index.html', {'form': form})
+    else:
+        return render(request, 'calc/new.html', {'form': form})
 def feedback(request):
 	if request.method == 'POST':
 		sdate = timezone.now()
@@ -55,12 +59,13 @@ def process(request):
 #REST API 
 @api_view(['POST'])
 @authentication_classes((TokenAuthentication, ))
-@permission_classes((IsAuthenticated, ))
+@permission_classes((AllowAny, ))
 def processapi(request):
     print request.method
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         process_type =int(request.POST.get('req_type',''))
+        print form.errors
         if form.is_valid():
             data = form.save()
             if process_type == 0:

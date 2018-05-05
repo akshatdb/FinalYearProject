@@ -21,6 +21,7 @@ Version | Changes | Date of deployment
 0.3.7 | Changed css, added learning again | 07-04-2018
 0.3.8 | Added support for 43 different characters | 24-04-2018
 0.3.9 | Lots of bug fixes and changed learning method | 29-04-2018
+0.4.0 | Added camera view for mobile | 05-05-2018
 
 ## Heroku Buildpacks
 

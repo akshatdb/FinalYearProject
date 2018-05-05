@@ -792,7 +792,12 @@ function processdata(data) {
         $('#div-bg').css({'left':-(sizey-sizex)/2 + $('#div-img').offset().left});
     }      
     }
-    $("#div-bg").attr('src',URL.createObjectURL(file))
+    try{
+        $("#div-bg").attr('src',URL.createObjectURL(file));
+    }
+    catch(e){
+        $("#div-bg").attr('src',imgfile)
+    }
     drawList(backuplist, 'digits');
     evaluateList();
     $('.num-box.digits').on('click', function () {
@@ -843,9 +848,9 @@ Upload.prototype.doUpload = function () {
     var formData = new FormData();
 
     // add assoc key values, this will be posts values
-    formData.append("image", this.file, this.file.name);
-    formData.append("req_type", this.reqt);
+    formData.append("image", this.file, 'n.jpg');
     formData.append("csrfmiddlewaretoken", this.csrf);
+    formData.append("req_type", this.reqt);
     $('.overlay').fadeIn('fast');
     $('body').addClass('overlay-open');
     $.ajax({
