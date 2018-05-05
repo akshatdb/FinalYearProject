@@ -120,8 +120,6 @@
                 // Not adding `{ audio: true }` since we only want video now
                 navigator.mediaDevices.getUserMedia({ video: {        
                     facingMode: ['environment'],
-                    height: {ideal: 1080},
-                    width: {ideal: 1920}
                     } 
                 }).then(function(stream) {
                     track = stream.getVideoTracks()[0];
@@ -141,15 +139,7 @@
 
     // Trigger photo take
     document.getElementById("snap").addEventListener("click", function() {
-        var imageCaptureConfig = {
-            fillLightMode: "flash", /* or "flash" */
-            focusMode: "continuous"
-        };
-                imageCapture = new ImageCapture(track);
-                imageCapture.setOptions(imageCaptureConfig)
-                .catch(err => console.error('setOptions(' + JSON.stringify(imageCaptureConfig) + ') failed: ', err));
-                context.drawImage(video, 0, 0, 640, 480);
-                context.fillRect(50,50,50,50);
+                context.drawImage(video, 0, 0, $('#video').height(), $('#video').width());
                 imgfile = canvas.toDataURL('image/jpg');
                 var blobBin = atob(imgfile.split(',')[1]);
                 var array = [];

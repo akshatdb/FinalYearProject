@@ -96,6 +96,7 @@ function printEquations() {
 }
 //find numbers in the image
 function sortList(slist) {
+    console.log(slist);
     slist.sort(function (a, b) {
         return a[1] - b[1];
     });
@@ -799,7 +800,13 @@ function processdata(data) {
         $("#div-bg").attr('src',imgfile)
     }
     drawList(backuplist, 'digits');
+    if(symlist.length > 0)
     evaluateList();
+    else
+    {
+    $('.answer').html('Incorrect detection');
+    return;
+    }
     $('.num-box.digits').on('click', function () {
         setInitValues();
         $('#feed-btn').fadeIn();
