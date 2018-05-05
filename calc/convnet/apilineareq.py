@@ -5,6 +5,7 @@ from keras.models import load_model
 from keras.optimizers import SGD
 from PIL import Image
 import os
+from scipy.io import loadmat, savemat
 from django.conf import settings
 import tensorflow as tf
 im_path = os.path.join(settings.BASE_DIR, 'media')
@@ -15,6 +16,26 @@ global imgx,imgy
 blankim = np.zeros((28,28))
 kernel = np.ones((2,2),np.uint8)
 
+rotateDict = {
+	1:'rotate(0deg)',
+	2:'rotate(0deg)',
+	3:'rotate(180deg)',
+	4:'rotate(0deg)',
+	5:'rotate(0deg)',
+	6:'rotate(90deg)',
+	7:'rotate(0deg)',
+	8:'rotate(-90deg)',
+}
+flipDict = {
+	1:0,
+	2:0,
+	3:0,
+	4:0,
+	5:0,
+	6:1,
+	7:0,
+	8:1,
+}
 digits = {
 	0:'0',
 	1:'1',
@@ -70,7 +91,8 @@ alpha = {
 	11:'+',
 	12:'-',
 }
-revclasses = {
+
+alpha_rev = {
 	'0':0,
 	'1':1,
 	'2':2,
@@ -228,22 +250,12 @@ def recognize(img, contours):
 
 def init_conf():
 	modelc = load_model(abs_path + '/digits.h5')
-	try:
-		modelc.load_weights(abs_path + '/weightsc.h5')
-	except:
-		print 'what'
-		#modelc.save_weights(abs_path + '/weightsc.h5', overwrite=True)
 	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
 	modelc.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphc = tf.get_default_graph()
 	return modelc, graphc
 def init_char():
 	modeld = load_model(abs_path + '/all.h5')
-	try:
-		modeld.load_weights(abs_path + '/weightsd.h5')
-	except:
-		print 'what'
-		#modelc.save_weights(abs_path + '/weightsd.h5', overwrite=True)
 	sgd = SGD(lr = 0.01, momentum = 0.9, decay = 0, nesterov = False)
 	modeld.compile(optimizer=sgd, loss = 'categorical_crossentropy')
 	graphd = tf.get_default_graph()
@@ -261,29 +273,31 @@ modeldiv, graphdiv = initdiv()
 def api_find_linear(img_url):
 	global imgx,imgy
 	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
+	imtmp = Image.open(im_path+'/'+img_url)
 	image,imgx,imgy = scale_down(image)
 	img = preprocess(image)
 	contours = detect(img)
 	results = recognize(image,contours)
-	results.update({'image':{'x':imgx,'y':imgy}})
+	results.update({'image':{'x':imgx,'y':imgy,'angle':rotateDict[1],'flip':flipDict[1]}})
 	results.update({'imagename': img_url})
 	return results
 
 def learnmat(filename,imgx,val):
+	print 'got here'
 	try:
 		data = loadmat(abs_path + '/data/' + filename)
 		x = data['X']
 		y = data['y'][0]
 		s = x.shape[0]
-		xn = np.zeros((s+1,1,784))
+		xn = np.zeros((s+1,784))
 		yn = np.zeros((s+1))
 		xn[0:s] = x
 		yn[0:s] = y
 	except:
-		xn = np.zeros((1,1,784))
+		xn = np.zeros((1,784))
 		yn = np.zeros((1))
 		s = 0
-	xn[s] = imgx
+	xn[s] = imgx.flatten()
 	yn[s] = val
 	savemat(abs_path + '/data/' + filename[0:-4],{'X':xn,'y':yn})
 
@@ -305,15 +319,6 @@ def api_learn_model(imgurl,x,y,w,h,val):
 	img = img.reshape((28, 28, 1)).astype('float32')
 	img = np.array([img])
 	img = img/255
-	tmpd = np.zeros((1,classesd))
-	tmpd[0][digits_rev[val]] = 1
-	with graphd.as_default():
-		modeld.fit(img,tmpd, epochs = 1)
-	if digits_rev[val] <= 9 or digits_rev[val] == 13  or digits_rev[val] == 16  or digits_rev[val] == 17:
-		tmpc = np.zeros((1,classesc))
-		tmpc[0][revclasses[val]] = 1
-		with graphc.as_default():
-			modelc.fit(img,tmpc, epochs = 1)
-	modeld.save_weights(abs_path + '/weightsd.h5', overwrite=True)
-	modelc.save_weights(abs_path + '/weightsc.h5', overwrite=True)
+	learnmat('all.mat',img, alpha_rev[val])
+	learnmat('some.mat',img, digits_rev[val])
 	return 'ok'

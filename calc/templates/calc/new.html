@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="hidden-div">
-        <canvas id="canvas" width="640" height="480"></canvas>
+        <canvas id="canvas"></canvas>
     </div>
 	<div class="overlay">
 		<div id="progress-wrp">
@@ -139,7 +139,10 @@
 
     // Trigger photo take
     document.getElementById("snap").addEventListener("click", function() {
-                context.drawImage(video, 0, 0, $('#video').height(), $('#video').width());
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                console.log(video.videoHeight, video.videoWidth);
+                context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
                 imgfile = canvas.toDataURL('image/jpg');
                 var blobBin = atob(imgfile.split(',')[1]);
                 var array = [];
