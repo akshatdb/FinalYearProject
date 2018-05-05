@@ -25,7 +25,7 @@ def index(request):
     form = FeedbackForm()
     print request.META['HTTP_USER_AGENT']
     if request.META['HTTP_USER_AGENT'].find('Android')==-1 and request.META['HTTP_USER_AGENT'].find('iPhone')==-1:
-        return render(request, 'calc/index.html', {'form': form})
+        return render(request, 'calc/new.html', {'form': form})
     else:
         return render(request, 'calc/new.html', {'form': form})
 def feedback(request):
