@@ -301,7 +301,7 @@ $(document).ready(function () {
                 var wv = $('#video').width();
                 var rh = hc/hv;
                 var rw = wc/wv;
-                context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,video.videoWidth*0.05,video.videoHeight*0.05,video.videoWidth*rw, video.videoHeight*rh);
+                context.drawImage(video,video.videoWidth*0.1,video.videoHeight*0.1,video.videoWidth*rw, video.videoHeight*rh*0.9, 0, 0, video.videoWidth*rw, video.videoHeight*rh*0.9);
                 imgfile = canvas.toDataURL('image/jpg');
                 var blobBin = atob(imgfile.split(',')[1]);
                 var array = [];

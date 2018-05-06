@@ -184,7 +184,7 @@ def preprocess_num(img):
 	return img
 
 def preprocess_drop(img):
- 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,11,7)
+ 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,41,57)
  	img = cv2.blur(img,(2,2))
  	ret, img = cv2.threshold(img,img.mean(),255,cv2.THRESH_BINARY)
  	img = cv2.erode(img,kernel,1)
@@ -192,35 +192,7 @@ def preprocess_drop(img):
 
 def detect(img):
 	x,y = img.shape
-	imgr = np.zeros(img.shape, np.uint8)
-	a = [x/15,x/8,x/5]
-	for t in range(3):
-		boxsize = [a[t], a[t]]
-		i = 0 
-		j = 0
-		nj = a[t]/8
-		ni = a[t]/10
-		while(1):
-			crop_img = img[j:j+boxsize[1],i:i+boxsize[0]]
-			i = i + ni
-			if i>img.shape[1]-boxsize[0]:
-				i = 0
-				j = j + nj
-				state = 1
-				if j>img.shape[0]-boxsize[1]:
-					break
-			if(np.sum(crop_img) <= 2550):
-				continue
-			q =div_test_dnn(crop_img)
-			if q == 1:
-				imgr[j:j+boxsize[1],i:i+boxsize[0]] = 255				
-	imgr, contours, hierarchy = cv2.findContours(imgr,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-	result = []
-	i = 0
-	for contour in contours:
-		x,y,w,h = cv2.boundingRect(contour)
-		result.append([x,y,w,h])
-		i = i + 1
+	result = [[0,0,int(imgx*0.9),int(imgy*0.9)]]
 	return result
 	
 def recognize(img, contours):

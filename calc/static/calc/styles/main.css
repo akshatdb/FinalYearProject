@@ -763,8 +763,7 @@ body.overlay-open { overflow: hidden; }
 	text-align: center;
 }
 .hidden-div{
-	position:fixed;
-	z-index: 10;
+	display:none;
 }
 #crop-hand-div{
 	display:none;

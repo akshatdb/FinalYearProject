@@ -65,7 +65,6 @@ def processapi(request):
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         process_type =int(request.POST.get('req_type',''))
-        print form.errors
         if form.is_valid():
             data = form.save()
             if process_type == 0:
@@ -78,7 +77,6 @@ def processapi(request):
 
 def learn(request):
     data = json.loads(request.body)
-    print data
     lenc = data['length']
     process_type =data['req_type']
     for i in range(lenc):
