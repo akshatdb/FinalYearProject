@@ -57,7 +57,13 @@
 	{% endif %}
 	<div class="header">
 	<h1 class="head-icon"><img src="{% static 'calc/images/logo.png' %}" class="head-logo">Math<span class="head-ocr">OCR<div id="what"></div></span></h1>
-	</div>
+    <div class="menu">
+        <div class="camera-page"><a href="{% url 'calc:campage' %}"><i class="fa fa-camera" style="padding-right:5px"></i>camera</a></div>
+        <div class="upload-page active-page"><a href="{% url 'calc:uppage' %}"><i class="fa fa-upload" style="padding-right:5px"></i>upload</a></div>
+        <div class="sketch-page"><a href="{% url 'calc:skpage' %}"><i class="fa fa-pencil" style="padding-right:5px"></i>sketchpad</a></div>
+    </div>    
+</div>
+
 	<div class="main">
 		<div class="row form-div">
 			<div class="form">
@@ -218,6 +224,9 @@ $(document).ready(function () {
         $(this).toggleClass('rotate').toggleClass('not-rotate');
         $('.equation-div').slideToggle();
     });
+    $('.menu>div').css({
+        'font-size':window.innerWidth/30;
+    })
 });
 	</script>
 	<script>

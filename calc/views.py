@@ -23,11 +23,20 @@ from .forms import ImageForm, FeedbackForm
 
 def index(request):
     form = FeedbackForm()
-    print request.META['HTTP_USER_AGENT']
     if request.META['HTTP_USER_AGENT'].find('Android')==-1 and request.META['HTTP_USER_AGENT'].find('iPhone')==-1:
-        return render(request, 'calc/index.html', {'form': form})
+        return render(request, 'calc/uploadview.html', {'form': form})
     else:
-        return render(request, 'calc/new.html', {'form': form})
+        return render(request, 'calc/camview.html', {'form': form})
+
+def campage(request):
+    form = FeedbackForm()
+    return render(request, 'calc/camview.html', {'form' : form})
+def uppage(request):
+    form = FeedbackForm()
+    return render(request, 'calc/uploadview.html', {'form' : form})
+def skpage(request):
+    form = FeedbackForm()
+    return render(request, 'calc/camview.html', {'form' : form})
 def feedback(request):
 	if request.method == 'POST':
 		sdate = timezone.now()

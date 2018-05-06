@@ -192,7 +192,7 @@ def preprocess_drop(img):
 
 def detect(img):
 	x,y = img.shape
-	result = [[0,0,int(imgx*0.9),int(imgy*0.9)]]
+	result = [[0,0,int(imgx*0.9),int(imgy*0.8)]]
 	return result
 	
 def recognize(img, contours):
@@ -208,7 +208,7 @@ def recognize(img, contours):
 			numimg = crop_img[b:b+d,a:a+c]
 			xr = float(c)/(c+d)
 			yr = float(d)/(c+d)
-			if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/20 and d<=h/20)):
+			if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/50 and d<=h/50) ):
 				continue
 			num = char_test_dnn(numimg,xr,yr)
 			if (num<9 or num == 13 or num == 16 or num == 17):
@@ -216,6 +216,9 @@ def recognize(img, contours):
 				num = alpha[num]
 			else:
 				num = digits[num]
+			if num == '-':
+				if c == w:
+					continue
 			result.update({i:{'val':num,'x':(float(x+a)/imgx),'y':(float(y+b)/imgy),'w':(float(c)/imgx),'h':(float(d)/imgy)}})
 			i = i + 1
 	return result
