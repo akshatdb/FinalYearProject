@@ -776,3 +776,8 @@ body.overlay-open { overflow: hidden; }
 #view-div{
 	margin:auto;
 }
+#crop-hand-div,
+#crop-hand-div * {
+  -ms-touch-action: none;
+  touch-action: none;
+}
