@@ -65,8 +65,10 @@
 	<div class="main">
 		<div class="row form-div">
 			<div class="form-vid">
-                    <div id="crop-hand-div"></div>
-                    <video id="video" autoplay></video>
+                   <div id="view-div">
+                        <div id="crop-hand-div"></div>
+                        <video id="video" autoplay></video>
+                    </div>
                 <div id="cap-btn"><button id="snap"><i class="fa fa-camera-retro"></i></button></div>
 			</div>
 		</div>
@@ -116,51 +118,6 @@
 		<div class="footer-right"><a href="https://github.com/akshatdb/FinalYearProject"><i class="fa fa-github github-icon"></i></a></div>
 	</div>
 	<script>
-        //Video Script
-        var video = document.getElementById('video');
-        if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                // Not adding `{ audio: true }` since we only want video now
-                navigator.mediaDevices.getUserMedia({ video: {        
-                    facingMode: ['environment'],
-                    } 
-                }).then(function(stream) {
-                    track = stream.getVideoTracks()[0];
-                    try {
-                    video.srcObject = stream;
-                }
-                catch(err){
-                    video.src = URL.createObjectURL(stream);
-                }
-                video.play();
-            });
-        }
-    // Elements for taking the snapshot
-    var canvas = document.getElementById('canvas');
-    var context = canvas.getContext('2d');
-    var video = document.getElementById('video');
-
-    // Trigger photo take
-    document.getElementById("snap").addEventListener("click", function() {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-                imgfile = canvas.toDataURL('image/jpg');
-                var blobBin = atob(imgfile.split(',')[1]);
-                var array = [];
-                for(var i = 0; i < blobBin.length; i++) {
-                    array.push(blobBin.charCodeAt(i));
-                }
-                var file=new Blob([new Uint8Array(array)], {type: 'image/jpg'});
-                var reqt = 0;
-                var addr = "{% url 'calc:processapi' %}";
-                var csrf = $('[name="csrfmiddlewaretoken"]').val()
-                var upload = new Upload(file,addr,0,csrf);
-                // maby check size or type here with upload.getSize() and upload.getType()
-                $('#failed-wrp').hide('fast');
-                // execute upload
-                $('#image-view').attr('src',file);
-                upload.doUpload();
-    });
 
 //Main
 $(document).ready(function () {
@@ -262,6 +219,108 @@ $(document).ready(function () {
         $(this).toggleClass('rotate').toggleClass('not-rotate');
         $('.equation-div').slideToggle();
     });
+        //Video Script
+        var video = document.getElementById('video');
+        if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                // Not adding `{ audio: true }` since we only want video now
+                navigator.mediaDevices.getUserMedia({ video: {        
+                    facingMode: ['environment'],
+                    } 
+                }).then(function(stream) {
+                    track = stream.getVideoTracks()[0];
+                    try {
+                    video.srcObject = stream;
+                }
+                catch(err){
+                    video.src = URL.createObjectURL(stream);
+                }
+                video.play();
+                video.addEventListener("playing",function (){    
+                var aspectRatio = video.videoWidth/video.videoHeight;
+                console.log(aspectRatio);
+                h = $('#video').height();
+                $('#video').width(h*aspectRatio);
+                $('#view-div').css({
+                    'width':$('#video').width(),
+                    'height':$('#video').height()
+                });
+                $('#crop-hand-div').css({
+                    'width':$('#video').width()*0.9,
+                    'height':$('#video').height()*0.9,
+                    'top':$('#video').height()*0.05,
+                    'left':$('#video').offset().left + $('#video').width()*0.05
+                });
+                $('#crop-hand-div').show();
+                interact('#crop-hand-div').resizable({
+                    // Resize from all edges and corners
+                    edges: {left: false, right: true, bottom: true, top: false},
+                
+                    // Keep the edges inside the parent
+                    restrictEdges: {
+                        restriction: {
+                            left: 0,
+                            right: 110,
+                            top: 0,
+                            bottom: 110
+                          },
+                        endOnly: true
+                    },
+                
+                    // Minimum and Maximum size
+                    restrictSize: {
+                        min: { width: 100, height: 50 },
+                        max: { width: $('#view-div').width()*0.9, height: $('#view-div').height()*0.9}
+                    },
+                }).on('resizemove', function(event) {
+                    var target = event.target,
+                        x = (parseFloat(target.getAttribute('data-x')) || 0),
+                        y = (parseFloat(target.getAttribute('data-y')) || 0);
+                
+                    // update the element's style
+                    target.style.width  = event.rect.width + 'px';
+                    target.style.height = event.rect.height + 'px';
+                
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                })
+                });
+            });
+        }
+    // Elements for taking the snapshot
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var video = document.getElementById('video');
+
+    // Trigger photo take
+    document.getElementById("snap").addEventListener("click", function() {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                var hc = $('#crop-hand-div').height();
+                var wc = $('#crop-hand-div').width();
+                var hv = $('#video').height();
+                var wv = $('#video').width();
+                var rh = hc/hv;
+                var rw = wc/wv;
+                context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight,video.videoWidth*0.05,video.videoHeight*0.05,video.videoWidth*rw, video.videoHeight*rh);
+                imgfile = canvas.toDataURL('image/jpg');
+                var blobBin = atob(imgfile.split(',')[1]);
+                var array = [];
+                for(var i = 0; i < blobBin.length; i++) {
+                    array.push(blobBin.charCodeAt(i));
+                }
+                var file=new Blob([new Uint8Array(array)], {type: 'image/jpg'});
+                var reqt = 0;
+                var addr = "{% url 'calc:processapi' %}";
+                var csrf = $('[name="csrfmiddlewaretoken"]').val()
+                var upload = new Upload(file,addr,0,csrf);
+                // maby check size or type here with upload.getSize() and upload.getType()
+                $('#failed-wrp').hide('fast');
+                // execute upload
+                $('#image-view').attr('src',file);
+                upload.doUpload();
+    });
+
+
 });
 	</script>
 	<script>
