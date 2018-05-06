@@ -379,12 +379,6 @@ i.github-icon:hover,i.github-icon:focus{
 }
 @media screen and (min-width:1024px)
 {
-	#file-upload-label{
-		display:initial;
-	}
-	#file-upload-label-mobile{
-		display:none;
-	}
 	.row{
 		display:flex;
 	}
@@ -426,12 +420,6 @@ i.github-icon:hover,i.github-icon:focus{
 }
 @media screen and (max-width:1024px)
 {
-	#file-upload-label{
-		display:none;
-	}
-	#file-upload-label-mobile{
-		display:initial;
-	}
 	.form{
 		left:60%;
 	}
