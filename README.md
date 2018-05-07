@@ -23,6 +23,7 @@ Version | Changes | Date of deployment
 0.3.9 | Lots of bug fixes and changed learning method | 29-04-2018
 0.4.0 | Added camera view for mobile | 05-05-2018
 0.4.1 | Added cropper for camera view | 06-05-2018
+0.5.0 | Added Sketchpad and charapi | 07-05-2018
 
 ## Heroku Buildpacks
 

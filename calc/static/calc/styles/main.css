@@ -717,6 +717,8 @@ body.overlay-open { overflow: hidden; }
 	width:20%;
 	height:20%;
 }
+
+/*Camview*/
 .form-vid{
 	position:fixed;
 	width:100%;
@@ -809,4 +811,42 @@ body.overlay-open { overflow: hidden; }
 
 .active-page{
 	border-bottom: 2px solid var(--color-a)
+}
+
+/*Sketch pad*/
+
+/* Some CSS styling */
+.sketchpadapp {
+    /* Prevent nearby text being highlighted when accidentally dragging mouse outside confines of the canvas */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+	box-sizing:border-box;
+}
+.sketch-div, #canvas-boxes{
+	position: relative;
+}
+.tools-div{
+	position:absolute;
+	z-index:3;
+	bottom:20px;
+	right:20px;
+}
+#btn-ctx{
+	border:none;
+	padding:5px;
+	background: var(--color-c);
+	color:white;
+}
+#btn-ctx:hover{
+	background: var(--color-a);
+}
+#res-close{
+	position: fixed;
+	z-index: 13;
+	right:10px;
+	color:white;
 }

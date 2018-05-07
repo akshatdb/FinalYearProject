@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^campage/$', views.campage	, name='campage'),
     url(r'^uppage/$', views.uppage	, name='uppage'),
     url(r'^skpage/$', views.skpage	, name='skpage'),
+    url(r'^charapi/$', views.charapi	, name='charapi'),
     url(r'^feedback/$', views.feedback	, name='feedback'),
     url(r'^process/$', views.process	, name='process'),
     url(r'^processapi/$', views.processapi	, name='processapi'),

@@ -107,6 +107,33 @@ alpha_rev = {
 	'+':11,
 	'-':12,
 }
+def mnist_scale_char(img, a):
+	y, x = img.shape
+	if x > y:
+		while x >= a-1:
+			x = x*0.99
+			y = y*0.99
+	else:
+		while y>= a-1:
+			x = x*0.99
+			y = y*0.99
+	x = int(x)
+	y = int(y)
+	if x == 0:
+		x = 1
+	if y == 0:
+		y = 1
+	xg = (a-x)/2
+	yg = (a-y)/2
+	img = Image.fromarray(img)
+	img = img.resize((x,y), Image.BICUBIC)
+	img = np.asarray(img, dtype=np.uint8)
+	imgb = np.copy(blankim)
+	imgb[yg:yg+y,xg:xg+x] = img
+	imgb = imgb.reshape((28, 28, 1)).astype('float32')
+	imgb = np.array([imgb])
+	return imgb
+
 def mnist_scale(img,xr,yr,a):
     x = int(a*xr)
     y = int(a*yr)
@@ -131,7 +158,7 @@ def mnist_scale(img,xr,yr,a):
 
 def conf_test_dnn(img,xr,yr):
 	n_classes = 13
-	imgb = mnist_scale(img,xr,yr,30)
+	imgb = mnist_scale_char(img,28)
 	if imgb is None:
 		return -1
 	imgb = imgb/255
@@ -141,7 +168,7 @@ def conf_test_dnn(img,xr,yr):
 
 def char_test_dnn(img,xr,yr):
 	n_classes = 18
-	imgb = mnist_scale(img,xr,yr,28)
+	imgb = mnist_scale_char(img,28)
 	if imgb is None:
 		return -1
 	imgb = imgb/255
@@ -161,6 +188,13 @@ def div_test_dnn(img):
 		out = modeldiv.predict(img).reshape(n_classes)
 	return np.argmax(out)
 
+def char_test(img_url):
+	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
+	ret, image = cv2.threshold(image,127,255,cv2.THRESH_BINARY_INV)
+	c,d = image.shape
+	xr = float(c)/(c+d)
+	yr = float(d)/(c+d)
+	return digits[char_test_dnn(image, xr, yr)]
 def scale_down(img):
 	x,y = img.shape
 	for i in range(100): 

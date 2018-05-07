@@ -119,99 +119,13 @@
 		</div>
 	</div>
 	<div class="footer">
-		<div class="footer-left">Version 0.4.0 &nbsp;|&nbsp; <a class="link-new" href="{% url 'admin:index' %}">Admin Panel</a></div>
+		<div class="footer-left">Version 0.5.0 &nbsp;|&nbsp; <a class="link-new" href="{% url 'admin:index' %}">Admin Panel</a></div>
 		<div class="footer-right"><a href="https://github.com/akshatdb/FinalYearProject"><i class="fa fa-github github-icon"></i></a></div>
 	</div>
 	<script>
 
 //Main
 $(document).ready(function () {
-    $('#file').on('change', function () {
-        if ($('#file').val() != '') {
-            //var $container = $('body');
-            //var $scrollTo = $('.choice-div');
-            var tmp = $('#file').prop('files')[0];
-            var sx, sy;
-            $('#file-upload-label').hide();
-            //$('.choice-div').fadeIn();
-            $('.form').css({
-                'top': '40%'
-            })
-            $('#image-view').attr('src', URL.createObjectURL(tmp));
-            $('#image-view').on('load', function () {
-                [sx, sy] = scaleSizes($(this).width(), $(this).height());
-                $(this).css({
-                    'width': sx,
-                    'height': sy,
-                    'top': 1.2 * $('.head-icon').height(),
-                    'left': ($(window).width() - sx) / 2
-                });
-                $('.image-crop').css({
-                    'width': sx,
-                    'height': sy,
-                    'top': 1.2 * $('.head-icon').height(),
-                    'left': ($(window).width() - sx) / 2
-                });
-                $('#img-box').css({
-                    'width': sx,
-                    'height': sy,
-                    'top': 1.2 * $('.head-icon').height(),
-                    'left': ($(window).width() - sx) / 2
-                });
-                $('#image-view').fadeIn();
-                $('#image-view').one('mouseenter click', function () {
-                    cropFlag = 1;
-                    $('#image-view').croppie({
-                        viewport: {
-                            width: 0.95 * sx,
-                            height: 0.95 * sy
-                        },
-                        enableResize: true
-                    });
-                });
-            });
-            /*var factor;
-            if ($(window).width() < 1024)
-                factor = 1.5;
-            else
-                factor = 1;
-            $('body,html').animate({
-                scrollTop: factor * $scrollTo.outerHeight()
-            });*/
-			$(this).blur();
-			cropFlag = 0;	
-            if(cropFlag == 1)
-            {
-            $('#image-view').croppie('result','blob',1).then(function(blob) {
-                   // do something with cropped blob
-                var filename = $('#file')[0].files[0].name;
-                var filetype = $('#file')[0].files[0].type;
-                file = new File([blob], filename);
-                var reqt = 0;
-                var addr = "{% url 'calc:process' %}";
-                var csrf = $('[name="csrfmiddlewaretoken"]').val()
-                var upload = new Upload(file,addr,reqt,csrf);
-                // maby check size or type here with upload.getSize() and upload.getType()
-                $('#failed-wrp').hide('fast');
-                // execute upload
-                $('#image-view').attr('src',URL.createObjectURL(file));
-                upload.doUpload();		
-            });
-            }
-            else{
-                file = $('#file')[0].files[0];
-                var reqt = 0;
-                var addr = "{% url 'calc:process' %}";
-                var csrf = $('[name="csrfmiddlewaretoken"]').val()
-                var upload = new Upload(file,addr,reqt,csrf);
-                // maby check size or type here with upload.getSize() and upload.getType()
-                $('#failed-wrp').hide('fast');
-                // execute upload
-                $('#image-view').attr('src',URL.createObjectURL(file));
-                upload.doUpload();
-            }
-        }
-    });
     $('.change-box-btn').on('click', function () {
         pos = ($('.change-box-btn-circle').css('left') == '2px') ? '22px' : '2px';
         $('.change-box-btn-circle').animate({
@@ -233,8 +147,6 @@ $(document).ready(function () {
                 // Not adding `{ audio: true }` since we only want video now
                 navigator.mediaDevices.getUserMedia({ video: {        
                     facingMode: ['environment'],
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 } 
                 } ,
                     audio: false,
                 }).then(function(stream) {

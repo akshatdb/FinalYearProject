@@ -16,7 +16,7 @@ from rest_framework.response import Response
 
 from convnet.basiccal import find_basic
 from convnet.lineareq import find_linear, learn_model
-from convnet.apilineareq import api_find_linear, api_learn_model
+from convnet.apilineareq import api_find_linear, api_learn_model, char_test
 from convnet.ocr import check_img, learn_img
 from .models import Feedback, Image
 from .forms import ImageForm, FeedbackForm
@@ -36,7 +36,7 @@ def uppage(request):
     return render(request, 'calc/uploadview.html', {'form' : form})
 def skpage(request):
     form = FeedbackForm()
-    return render(request, 'calc/camview.html', {'form' : form})
+    return render(request, 'calc/sketchview.html', {'form' : form})
 def feedback(request):
 	if request.method == 'POST':
 		sdate = timezone.now()
@@ -70,7 +70,6 @@ def process(request):
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((AllowAny, ))
 def processapi(request):
-    print request.method
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         process_type =int(request.POST.get('req_type',''))
@@ -83,7 +82,17 @@ def processapi(request):
             else:
                 msg = process_type
     return JsonResponse(msg)
-
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((AllowAny, ))
+def charapi(request):
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+        process_type =int(request.POST.get('req_type',''))
+        if form.is_valid():
+            data = form.save()
+            msg = char_test(str(data.image)) 
+    return JsonResponse({'ans':msg})
 def learn(request):
     data = json.loads(request.body)
     lenc = data['length']
