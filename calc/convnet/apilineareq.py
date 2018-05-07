@@ -110,11 +110,11 @@ alpha_rev = {
 def mnist_scale_char(img, a):
 	y, x = img.shape
 	if x > y:
-		while x >= a-1:
+		while x >= a-2:
 			x = x*0.99
 			y = y*0.99
 	else:
-		while y>= a-1:
+		while y>= a-2:
 			x = x*0.99
 			y = y*0.99
 	x = int(x)

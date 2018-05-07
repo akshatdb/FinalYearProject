@@ -87,7 +87,7 @@ def processapi(request):
 @permission_classes((AllowAny, ))
 def charapi(request):
     if request.method == 'POST':
-        form = ImageForm(request.POST, request.FILES)
+        form = CharImageForm(request.POST, request.FILES)
         process_type =int(request.POST.get('req_type',''))
         if form.is_valid():
             data = form.save()

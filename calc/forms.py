@@ -1,10 +1,15 @@
 from django import forms
-from .models import Image, Feedback
+from .models import Charimage, Image, Feedback
 
 class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
         fields = ('image',)
+
+class CharimageForm(forms.ModelForm):
+    class Meta:
+        model = Charimage
+        fields = ('charimage',)
 
 class FeedbackForm(forms.ModelForm):
 	u_email = forms.EmailField(label='')

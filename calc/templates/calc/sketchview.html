@@ -395,6 +395,8 @@
         context.fillStyle = "white";
         context.fillRect(0, 0, canvas.width, canvas.height);
         $('#canvas-boxes').html('');
+        prev = [];
+        waitState = 0;
         symlist = $.extend(true, [], []);
         setInitValues();
       }
