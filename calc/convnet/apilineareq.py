@@ -189,7 +189,7 @@ def div_test_dnn(img):
 	return np.argmax(out)
 
 def char_test(img_url):
-	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
+	image = cv2.imread(img_url,cv2.IMREAD_GRAYSCALE)
 	ret, image = cv2.threshold(image,127,255,cv2.THRESH_BINARY_INV)
 	c,d = image.shape
 	xr = float(c)/(c+d)
@@ -281,8 +281,7 @@ modeld,graphd = init_char()
 modeldiv, graphdiv = initdiv()
 def api_find_linear(img_url):
 	global imgx,imgy
-	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
-	imtmp = Image.open(im_path+'/'+img_url)
+	image = cv2.imread(img_url,cv2.IMREAD_GRAYSCALE)
 	image,imgx,imgy = scale_down(image)
 	img = preprocess(image)
 	contours = detect(img)

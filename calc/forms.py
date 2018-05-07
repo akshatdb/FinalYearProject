@@ -9,7 +9,7 @@ class ImageForm(forms.ModelForm):
 class CharimageForm(forms.ModelForm):
     class Meta:
         model = Charimage
-        fields = ('charimage',)
+        fields = ('image',)
 
 class FeedbackForm(forms.ModelForm):
 	u_email = forms.EmailField(label='')

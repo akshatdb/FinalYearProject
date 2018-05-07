@@ -272,8 +272,8 @@ modeld,graphd = init_char()
 modeldiv, graphdiv = initdiv()
 def find_linear(img_url):
 	global imgx,imgy
-	image = cv2.imread(im_path+'/'+img_url,cv2.IMREAD_GRAYSCALE)
-	imtmp = Image.open(im_path+'/'+img_url)
+	image = cv2.imread(img_url,cv2.IMREAD_GRAYSCALE)
+	imtmp = Image.open(img_url)
 	exifdata = imtmp._getexif()
 	image,imgx,imgy = scale_down(image)
 	img = preprocess(image)

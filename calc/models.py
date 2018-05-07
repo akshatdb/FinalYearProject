@@ -4,11 +4,12 @@ from __future__ import unicode_literals
 from django.db import models
 
 from django.utils import timezone
+from django.conf import settings
 
 def image_upload_path(instance, filename):
-    return settings.MEDIA_ROOT + '/images/'
+    return settings.MEDIA_ROOT + '/images/'+filename
 def charimage_upload_path(instance, filename):
-    return settings.MEDIA_ROOT + '/chars/'
+    return settings.MEDIA_ROOT + '/chars/'+filename
 class Image(models.Model):
     image = models.ImageField("Uploaded Image",upload_to=image_upload_path)
     title = models.CharField(max_length=50, default=timezone.now())
@@ -18,7 +19,7 @@ class Image(models.Model):
    		return self.title
 
 class Charimage(models.Model):
-    charimage = models.ImageField("Uploaded Image",upload_to=charimage_upload_path)
+    image = models.ImageField("Uploaded Image",upload_to=charimage_upload_path)
     title = models.CharField(max_length=50, default=timezone.now())
     req_type = models.CharField(max_length=1)
     sub_date = models.DateTimeField(auto_now_add=True)

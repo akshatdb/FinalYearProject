@@ -19,7 +19,7 @@ from convnet.lineareq import find_linear, learn_model
 from convnet.apilineareq import api_find_linear, api_learn_model, char_test
 from convnet.ocr import check_img, learn_img
 from .models import Feedback, Image
-from .forms import ImageForm, FeedbackForm
+from .forms import ImageForm, FeedbackForm, CharimageForm
 
 def index(request):
     form = FeedbackForm()
@@ -87,8 +87,9 @@ def processapi(request):
 @permission_classes((AllowAny, ))
 def charapi(request):
     if request.method == 'POST':
-        form = CharImageForm(request.POST, request.FILES)
+        form = CharimageForm(request.POST, request.FILES)
         process_type =int(request.POST.get('req_type',''))
+        print form.errors
         if form.is_valid():
             data = form.save()
             msg = char_test(str(data.image)) 
