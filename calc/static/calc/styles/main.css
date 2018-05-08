@@ -744,8 +744,15 @@ body.overlay-open { overflow: hidden; }
 	z-index:3;
 }
 #rotate-btn{
-	right:70px;
+	width:30px;
+	height:30px;
+	padding:5px;
+	border-radius: 30px;
+	font-size: 15px;
+	right:-70px;
+	bottom:-20px;
 }
+	
 #snap:hover{
 	background-color: white;
 	cursor: pointer;
@@ -860,4 +867,22 @@ body.overlay-open { overflow: hidden; }
 .sketch-box{
 	background: white;
 	color:black;
+}
+.cam-btns{
+	dislay:inline-block;
+	-webkit-transform : rotate(90deg);
+	-moz-transform: rotate(90deg);
+	transform: rotate(90deg);
+}
+.cam-btns{
+	transition: .4s linear;
+	-webkit-transform : rotate(0deg);
+	-moz-transform: rotate(0deg);
+	transform: rotate(0deg);
+}
+.cam-btns.rotation-class{
+    transition        : .4s linear;
+	-webkit-transform : rotate(90deg);
+	-moz-transform: rotate(90deg);
+	transform: rotate(90deg);
 }

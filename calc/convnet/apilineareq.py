@@ -235,7 +235,7 @@ def recognize(img, contours):
 	for contour in contours:
 		[x,y,w,h] = contour
 		crop_img = img[y:y+h,x:x+w]
-		crop_img = preprocess_drop(crop_img)
+		crop_img = preprocess_num(crop_img)
 		crop_img, cnts, hierarchy = cv2.findContours(crop_img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 		for cnt in cnts:
 			a,b,c,d = cv2.boundingRect(cnt)

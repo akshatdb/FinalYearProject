@@ -18,6 +18,7 @@
 <body>
     <div class="hidden-div">
         <canvas id="canvas"></canvas>
+        <canvas id="canvas2"></canvas>
     </div>
 	<div class="overlay">
 		<div id="progress-wrp">
@@ -72,8 +73,8 @@
                         <div id="crop-hand-div"></div>
                         <video id="video" autoplay></video>
                     </div>
-                <div id="cap-btn"><button id="snap"><i class="fa fa-camera"></i></button></div>
-                <div id="rot-btn"><button id="rotate-btn"><i class="fa fa-camera"></i></button></div>
+                <div id="cap-btn" ><button id="snap"class="cam-btns"><i class="fa fa-camera"></i></button></div>
+                <div id="rot-btn" ><button id="rotate-btn"class="cam-btns"><i class="fa fa-undo"></i></button></div>
 			</div>
 		</div>
 		<div class="row choice-div">
@@ -124,6 +125,7 @@
 
 //Main
 $(document).ready(function () {
+    rotateFlag = false;
     $('.change-box-btn').on('click', function () {
         pos = ($('.change-box-btn-circle').css('left') == '2px') ? '22px' : '2px';
         $('.change-box-btn-circle').animate({
@@ -136,6 +138,10 @@ $(document).ready(function () {
         $(this).toggleClass('rotate').toggleClass('not-rotate');
         $('.equation-div').slideToggle();
     });
+    $('#rotate-btn').on('click', function(){
+        $('.cam-btns').toggleClass('rotation-class');
+        rotateFlag =  $('.cam-btns').hasClass('rotation-class');
+    });
     $('.menu>div').css({
         'font-size':window.innerWidth/30,
     });
@@ -145,8 +151,8 @@ $(document).ready(function () {
                 // Not adding `{ audio: true }` since we only want video now
                 navigator.mediaDevices.getUserMedia({ video: {        
                     facingMode: ['environment'],
-                    width: { ideal: 1920},
-                    height: { ideal: 1080 },
+                    width: { ideal: 1280},
+                    height: { ideal:  720},
                 } ,
                     audio: false,
                 }).then(function(stream) {
@@ -216,15 +222,48 @@ $(document).ready(function () {
 
     // Trigger photo take
     document.getElementById("snap").addEventListener("click", function() {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                var hc = $('#crop-hand-div').height();
-                var wc = $('#crop-hand-div').width();
-                var hv = $('#video').height();
-                var wv = $('#video').width();
-                var rh = hc/hv;
-                var rw = wc/wv;
-                context.drawImage(video,video.videoWidth*0.1,video.videoHeight*0.1,video.videoWidth*rw, video.videoHeight*rh*0.9, 0, 0, video.videoWidth*rw, video.videoHeight*rh*0.9);
+                if(rotateFlag)
+                {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    var hc = $('#crop-hand-div').height();
+                    var wc = $('#crop-hand-div').width();
+                    var hv = $('#video').height();
+                    var wv = $('#video').width();
+                    var rh = hc/hv;
+                    var rw = wc/wv;
+                    canvas.width = video.videoWidth*rw;
+                    canvas.height = video.videoHeight*rh*0.9;
+                    context.drawImage(video,video.videoWidth*0.1,video.videoHeight*0.1,video.videoWidth*rw, video.videoHeight*rh*0.9, 0, 0, video.videoWidth*rw, video.videoHeight*rh*0.9);
+                    var mCanvas=document.getElementById('canvas2');
+                    mCanvas.width=canvas.width;
+                    mCanvas.height=canvas.height;
+                    var mctx=mCanvas.getContext('2d');
+                    mctx.drawImage(canvas,0,0);
+                    canvas.width = mCanvas.height;
+                    canvas.height= mCanvas.width;
+                    context.clearRect(0,0,canvas.width,canvas.height);
+                    context.translate(canvas.width, canvas.height);
+                    var radians=-90/180*Math.PI;
+                    context.rotate(radians);
+                    context.drawImage(mCanvas,0,-0.9*hc/wc*canvas.height);
+                    // clean up -- unrotate and untranslate
+                    context.rotate(-radians);
+                    context.translate(-canvas.width,-canvas.height);
+                }
+                else
+                {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    var hc = $('#crop-hand-div').height();
+                    var wc = $('#crop-hand-div').width();
+                    var hv = $('#video').height();
+                    var wv = $('#video').width();
+                    var rh = hc/hv;
+                    var rw = wc/wv;
+
+                    context.drawImage(video,video.videoWidth*0.1,video.videoHeight*0.1,video.videoWidth*rw, video.videoHeight*rh*0.9, 0, 0, video.videoWidth*rw, video.videoHeight*rh*0.9); 
+                }
                 imgfile = canvas.toDataURL('image/jpg');
                 var blobBin = atob(imgfile.split(',')[1]);
                 var array = [];

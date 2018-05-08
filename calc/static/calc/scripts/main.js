@@ -71,6 +71,9 @@ function setRootsResults() {
     $('#more-btn').show();
     printEquations();
     result = '';
+    for(var i = 0; i < roots.length; i++)
+        if(roots[i]==null || isNaN(roots[i]) || X[i] == null)
+            undefinedFlag = 1;
     if (undefinedFlag == 1) {
         $('.answer').html('Incorrect detection');
         return;
