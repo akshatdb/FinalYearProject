@@ -24,6 +24,8 @@ Version | Changes | Date of deployment
 0.4.0 | Added camera view for mobile | 05-05-2018
 0.4.1 | Added cropper for camera view | 06-05-2018
 0.5.0 | Added Sketchpad and charapi | 07-05-2018
+0.5.1 | Client side recognition using Keras.js | 08-05-2018
+0.5.2 | Better recognition for sketchpad | 08-05-2018
 
 ## Heroku Buildpacks
 

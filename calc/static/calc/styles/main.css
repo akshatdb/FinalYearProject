@@ -730,7 +730,7 @@ body.overlay-open { overflow: hidden; }
 	width:100%;
 	height:80%;
 }
-#snap {
+#snap , #rotate-btn{
 	color:var(--color-b);
 	font-size: 20px;
 	width:50px;
@@ -743,11 +743,14 @@ body.overlay-open { overflow: hidden; }
 	bottom:-30px;
 	z-index:3;
 }
+#rotate-btn{
+	right:70px;
+}
 #snap:hover{
 	background-color: white;
 	cursor: pointer;
 }
-#cap-btn{
+#cap-btn, #rot-btn{
 	position:absolute;
 	width:100%;
 	bottom:10vh;
@@ -845,8 +848,16 @@ body.overlay-open { overflow: hidden; }
 	background: var(--color-a);
 }
 #res-close{
-	position: fixed;
-	z-index: 13;
-	right:10px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+	font-size: 14px;
 	color:white;
+}
+#res-close:hover{
+	color:var(--color-c);
+}
+.sketch-box{
+	background: white;
+	color:black;
 }

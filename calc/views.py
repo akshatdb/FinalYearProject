@@ -94,6 +94,19 @@ def charapi(request):
             data = form.save()
             msg = char_test(str(data.image)) 
     return JsonResponse({'ans':msg})
+
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((AllowAny, ))
+def charlearn(request):
+    if request.method == 'POST':
+        form = CharimageForm(request.POST, request.FILES)
+        process_type =request.POST.get('req_type','')
+        print process_type
+        if form.is_valid():
+            data = form.save()
+            msg = 'what'
+    return JsonResponse({'ans':msg})
 def learn(request):
     data = json.loads(request.body)
     lenc = data['length']

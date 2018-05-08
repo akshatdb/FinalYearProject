@@ -75,11 +75,11 @@
                         <video id="video" autoplay></video>
                     </div>
                 <div id="cap-btn"><button id="snap"><i class="fa fa-camera"></i></button></div>
+                <div id="rot-btn"><button id="rotate-btn"><i class="fa fa-camera"></i></button></div>
 			</div>
 		</div>
 		<div class="row choice-div">
 			<div class="column-4 help-col">
-				<button class="input-btn" id="snap" data-value=1><i class="fa fa-camera-retro" style="margin-right:10px"></i>Snap Photo</button>
 			</div>
 		</div>
 		<div class="row help-div">
@@ -119,7 +119,7 @@
 		</div>
 	</div>
 	<div class="footer">
-		<div class="footer-left">Version 0.5.0 &nbsp;|&nbsp; <a class="link-new" href="{% url 'admin:index' %}">Admin Panel</a></div>
+		<div class="footer-left">Version 0.5.1 &nbsp;|&nbsp; <a class="link-new" href="{% url 'admin:index' %}">Admin Panel</a></div>
 		<div class="footer-right"><a href="https://github.com/akshatdb/FinalYearProject"><i class="fa fa-github github-icon"></i></a></div>
 	</div>
 	<script>
@@ -147,10 +147,12 @@ $(document).ready(function () {
                 // Not adding `{ audio: true }` since we only want video now
                 navigator.mediaDevices.getUserMedia({ video: {        
                     facingMode: ['environment'],
+                    width: { ideal: 1920},
+                    height: { ideal: 1080 },
                 } ,
                     audio: false,
                 }).then(function(stream) {
-                    track = stream.getVideoTracks()[0];
+                    window.stream = stream;
                     try {
                     video.srcObject = stream;
                 }

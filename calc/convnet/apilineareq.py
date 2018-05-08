@@ -245,7 +245,7 @@ def recognize(img, contours):
 			if  ((xr>=0.4 and xr<=0.6 or yr>=0.4 and yr<=0.6) and (np.sum(numimg) >= (255*(d*c-d/10)))) or ( c<=(3*d) and (c<=w/50 and d<=h/50) ):
 				continue
 			num = char_test_dnn(numimg,xr,yr)
-			if (num<9 or num == 13 or num == 16 or num == 17):
+			if (num<=9 or num == 13 or num == 16 or num == 17):
 				num = conf_test_dnn(numimg,xr,yr)
 				num = alpha[num]
 			else:
@@ -282,6 +282,7 @@ modeldiv, graphdiv = initdiv()
 def api_find_linear(img_url):
 	global imgx,imgy
 	image = cv2.imread(img_url,cv2.IMREAD_GRAYSCALE)
+	print image.shape
 	image,imgx,imgy = scale_down(image)
 	img = preprocess(image)
 	contours = detect(img)
