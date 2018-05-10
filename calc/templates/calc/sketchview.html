@@ -139,7 +139,7 @@
         gpu: true
       });
     const modelconf = new KerasJS.Model({
-        filepath: "{% static 'calc/models/digits.bin' %}",
+        filepath: "{% static 'calc/models/mnist.bin' %}",
         gpu: true
       });
     model.ready().then(()=>{
@@ -202,7 +202,8 @@
         var img = nj.images.read(canvashid);
         img = nj.images.rgb2gray(img);
         img = nj.images.resize(img, 28, 28);
-        img = nj.negative(img);
+        if (val>9)
+            img = nj.negative(img);
         canvashid.height = img.shape[1];
         canvashid.width = img.shape[0];
         nj.images.save(img, canvashid);
@@ -342,7 +343,7 @@
             
             if (checkBox)
             {
-                var offsingle = 5;
+                var offsingle = 20;
                 var offdouble = offsingle * 2;
                 newBox = [rev[checkBox],0,0,0,0];
                 newBox[1] = prev[1] < x ? prev[1]:x;
@@ -374,6 +375,7 @@
                 var img = nj.images.read(canvashid);
                 img = nj.images.rgb2gray(img);
                 img = nj.images.resize(img, 28, 28);
+                imgalt = nj.images.resize(img, 28, 28);
                 img = nj.negative(img);
                 img = img.reshape([1, 28, 28, 1]);
                 img = img.flatten();
@@ -402,7 +404,10 @@
                   // e.g.,
                   // outputData['fc1000']
                   var ans = rev[argmax(outputData.output)];
-                  if (argmax(outputData.output) <= 9 || argmax(outputData.output) == 13 || argmax(outputData.output) == 16 || argmax(outputData.output) == 17)
+                  imgalt = imgalt.reshape([1, 28, 28, 1]);
+                  imgalt = imgalt.flatten();
+                  var inputdata = new Float32Array(imgalt.selection.data);
+                  if (argmax(outputData.output) <= 9)
                         modelconf.ready().then(()=>
                         {
                             const inputData = {
@@ -530,7 +535,7 @@
       });
       $('#canvas').on('mouseup',function(e){
         paint = false;
-        var offsingle = 5;
+        var offsingle = 20;
         var offdouble = offsingle * 2;
         canvashid.height = maxy-miny+offsingle;
         canvashid.width = maxx-minx+offsingle;
@@ -637,7 +642,7 @@
         context.fillRect(0, 0, canvas.width, canvas.height); 
         context.strokeStyle = "#000000";
         context.lineJoin = "round";
-        context.lineWidth = window.innerHeight/1000;
+        context.lineWidth = window.innerHeight/700;
                   
         for(var i=0; i < clickX.length; i++) {		
           context.beginPath();
