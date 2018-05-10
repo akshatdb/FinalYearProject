@@ -265,7 +265,6 @@
         SB = Math.abs(newBox[1]-newBox[3]) * Math.abs(newBox[0] - newBox[2]);
         SU = SA + SB - SI;
         IoU = SI / SU;
-        console.log(IoU);
         if(IoU > 0)
             return true;
         return false;
@@ -300,6 +299,7 @@
                 sendToLearn(val, newBox, iter);
             }
             });
+        restoreList = $.extend(true, [], symlist);
         if(symlist.length > 0)
             evaluateList();
         //$('#sketch-result-div').slideUp();
@@ -310,6 +310,8 @@
             $('.answer-div').slideUp();
             prev = [];
             waitState = 0;
+            symlist = $.extend(true, [], restoreList);
+            $('#equation-list').text('');
         });
     }
     function failedResponse(error)
@@ -417,7 +419,6 @@
                   else
                     fontSize = newBox[4];
                   iter++;
-                  console.log(argmax(outputData.output));
                   $('#canvas-boxes').append('<div id="box-' + id + '" class="num-box sketch-box" data-id=' + iter + ' ></div>');
                   $('#box-' + id).text(ans);
                   $('#box-' + id).css({
@@ -436,7 +437,7 @@
                     {
                        sendToLearn(val, newBox, boxid);
                    }});
-                 symlist.push([newBox[1], newBox[2], newBox[3], newBox[4], newBox[0], Number(iter), newBox[0], [], '\0', 0]);
+                 symlist.push([newBox[1], newBox[2], newBox[3], newBox[4], ans, Number(iter), ans, [], '\0', 0]);
                  $('#box-' + id).fadeIn();
                  waitState = 0;
                  })
@@ -636,7 +637,7 @@
         context.fillRect(0, 0, canvas.width, canvas.height); 
         context.strokeStyle = "#000000";
         context.lineJoin = "round";
-        context.lineWidth = 5;
+        context.lineWidth = window.innerHeight/100;
                   
         for(var i=0; i < clickX.length; i++) {		
           context.beginPath();

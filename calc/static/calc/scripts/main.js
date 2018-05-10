@@ -66,7 +66,12 @@ function setEqResults(ans, X) {
     }
     $('.answer').html(result);
 }
-
+function setInvalidResult() {
+    $('#more-btn').show();
+    printEquations();
+    result = 'Invalid Equations';
+    $('.answer').html(result);
+}
 function setRootsResults() {
     $('#more-btn').show();
     printEquations();
@@ -99,7 +104,6 @@ function printEquations() {
 }
 //find numbers in the image
 function sortList(slist) {
-    console.log(slist);
     slist.sort(function (a, b) {
         return a[1] - b[1];
     });
@@ -689,7 +693,7 @@ function mainCalculations(){
                 var ans = numeric.solve(A, B);
                 setEqResults(ans, X);
             } else
-                console.log('invalid Equations');
+                setInvalidResult();
         }
     } else {
         $('.change-box-btn').show();

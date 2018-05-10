@@ -218,7 +218,7 @@ def preprocess_num(img):
 	return img
 
 def preprocess_drop(img):
- 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,41,57)
+ 	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,255,37)
  	img = cv2.blur(img,(2,2))
  	ret, img = cv2.threshold(img,img.mean(),255,cv2.THRESH_BINARY)
  	img = cv2.erode(img,kernel,1)
@@ -226,7 +226,7 @@ def preprocess_drop(img):
 
 def detect(img):
 	x,y = img.shape
-	result = [[0,0,int(imgx*0.9),int(imgy*0.8)]]
+	result = [[0,0,int(imgx),int(imgy)]]
 	return result
 	
 def recognize(img, contours):
@@ -235,7 +235,7 @@ def recognize(img, contours):
 	for contour in contours:
 		[x,y,w,h] = contour
 		crop_img = img[y:y+h,x:x+w]
-		crop_img = preprocess_num(crop_img)
+		crop_img = preprocess_drop(crop_img)
 		crop_img, cnts, hierarchy = cv2.findContours(crop_img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 		for cnt in cnts:
 			a,b,c,d = cv2.boundingRect(cnt)
@@ -282,7 +282,6 @@ modeldiv, graphdiv = initdiv()
 def api_find_linear(img_url):
 	global imgx,imgy
 	image = cv2.imread(img_url,cv2.IMREAD_GRAYSCALE)
-	print image.shape
 	image,imgx,imgy = scale_down(image)
 	img = preprocess(image)
 	contours = detect(img)
@@ -292,7 +291,6 @@ def api_find_linear(img_url):
 	return results
 
 def learnmat(filename,imgx,val):
-	print 'got here'
 	try:
 		data = loadmat(abs_path + '/data/' + filename)
 		x = data['X']

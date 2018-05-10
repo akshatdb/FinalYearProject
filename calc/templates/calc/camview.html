@@ -166,7 +166,7 @@ $(document).ready(function () {
                 video.play();
                 video.addEventListener("playing",function (){    
                 var aspectRatio = video.videoWidth/video.videoHeight;
-                console.log(aspectRatio);
+
                 h = $('#video').height();
                 $('#video').width(h*aspectRatio);
                 $('#view-div').css({
@@ -224,8 +224,6 @@ $(document).ready(function () {
     document.getElementById("snap").addEventListener("click", function() {
                 if(rotateFlag)
                 {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
                     var hc = $('#crop-hand-div').height();
                     var wc = $('#crop-hand-div').width();
                     var hv = $('#video').height();
@@ -233,8 +231,8 @@ $(document).ready(function () {
                     var rh = hc/hv;
                     var rw = wc/wv;
                     canvas.width = video.videoWidth*rw;
-                    canvas.height = video.videoHeight*rh*0.9;
-                    context.drawImage(video,video.videoWidth*0.1,video.videoHeight*0.1,video.videoWidth*rw, video.videoHeight*rh*0.9, 0, 0, video.videoWidth*rw, video.videoHeight*rh*0.9);
+                    canvas.height = video.videoHeight*rh;
+                    context.drawImage(video,video.videoWidth*0.05,video.videoHeight*0.05,video.videoWidth*rw, video.videoHeight*rh, 0, 0, video.videoWidth*rw, video.videoHeight*rh);
                     var mCanvas=document.getElementById('canvas2');
                     mCanvas.width=canvas.width;
                     mCanvas.height=canvas.height;
@@ -246,7 +244,7 @@ $(document).ready(function () {
                     context.translate(canvas.width, canvas.height);
                     var radians=-90/180*Math.PI;
                     context.rotate(radians);
-                    context.drawImage(mCanvas,0,-0.9*hc/wc*canvas.height);
+                    context.drawImage(mCanvas,0,-hc/wc*canvas.height);
                     // clean up -- unrotate and untranslate
                     context.rotate(-radians);
                     context.translate(-canvas.width,-canvas.height);
@@ -261,8 +259,10 @@ $(document).ready(function () {
                     var wv = $('#video').width();
                     var rh = hc/hv;
                     var rw = wc/wv;
+                    canvas.width = video.videoWidth*rw;
+                    canvas.height = video.videoHeight*rh;
 
-                    context.drawImage(video,video.videoWidth*0.1,video.videoHeight*0.1,video.videoWidth*rw, video.videoHeight*rh*0.9, 0, 0, video.videoWidth*rw, video.videoHeight*rh*0.9); 
+                    context.drawImage(video,video.videoWidth*0.05,video.videoHeight*0.05,video.videoWidth*rw, video.videoHeight*rh, 0, 0, video.videoWidth*rw, video.videoHeight*rh); 
                 }
                 imgfile = canvas.toDataURL('image/jpg');
                 var blobBin = atob(imgfile.split(',')[1]);
