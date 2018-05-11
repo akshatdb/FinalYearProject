@@ -27,7 +27,7 @@
 {
 	body
 	{
-		background-image: url('../images/bg.gif');
+		background-image: url('../images/bg.jpg');
 		background-repeat:repeat;
 	}
 }
@@ -40,13 +40,13 @@
  	}	
 	body
 	{
-		background-image: url('../images/bg.gif');
+		background-image: url('../images/bg.jpg');
 		/*background-position:center;*/
 		background-repeat: repeat;
 	}
 }
 body{
-
+	background-size: cover;
 	background-attachment: fixed;
 	width:100%;
 	font-family: "moonl";

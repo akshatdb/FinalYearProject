@@ -139,7 +139,7 @@
         gpu: true
       });
     const modelconf = new KerasJS.Model({
-        filepath: "{% static 'calc/models/mnist.bin' %}",
+        filepath: "{% static 'calc/models/digits.bin' %}",
         gpu: true
       });
     model.ready().then(()=>{
@@ -202,8 +202,7 @@
         var img = nj.images.read(canvashid);
         img = nj.images.rgb2gray(img);
         img = nj.images.resize(img, 28, 28);
-        if (val>9)
-            img = nj.negative(img);
+        img = nj.negative(img);
         canvashid.height = img.shape[1];
         canvashid.width = img.shape[0];
         nj.images.save(img, canvashid);
@@ -375,7 +374,6 @@
                 var img = nj.images.read(canvashid);
                 img = nj.images.rgb2gray(img);
                 img = nj.images.resize(img, 28, 28);
-                imgalt = nj.images.resize(img, 28, 28);
                 img = nj.negative(img);
                 img = img.reshape([1, 28, 28, 1]);
                 img = img.flatten();
@@ -404,8 +402,6 @@
                   // e.g.,
                   // outputData['fc1000']
                   var ans = rev[argmax(outputData.output)];
-                  imgalt = imgalt.reshape([1, 28, 28, 1]);
-                  imgalt = imgalt.flatten();
                   var inputdata = new Float32Array(imgalt.selection.data);
                   if (argmax(outputData.output) <= 9)
                         modelconf.ready().then(()=>
@@ -642,7 +638,7 @@
         context.fillRect(0, 0, canvas.width, canvas.height); 
         context.strokeStyle = "#000000";
         context.lineJoin = "round";
-        context.lineWidth = window.innerHeight/700;
+        context.lineWidth = 5;
                   
         for(var i=0; i < clickX.length; i++) {		
           context.beginPath();
