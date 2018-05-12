@@ -3,7 +3,8 @@
 <head>
 	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 	<meta content="utf-8" http-equiv="encoding">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#005c4c" />
 	{% load static %}
 	<title>MathOCR</title>
 	<link rel="stylesheet" type="text/css" href="{% static 'calc/styles/main.css' %}" />
@@ -135,24 +136,33 @@
 </script>
 <script type="text/javascript">
     const model = new KerasJS.Model({
-        filepath: "{% static 'calc/models/model.bin' %}",
+        filepath: "{% static 'calc/models/mnist.bin' %}",
         gpu: true
       });
     const modelconf = new KerasJS.Model({
-        filepath: "{% static 'calc/models/digits.bin' %}",
+        filepath: "{% static 'calc/models/chars.bin' %}",
+        gpu: true
+      });
+    const modeldiv = new KerasJS.Model({
+        filepath: "{% static 'calc/models/divider.bin' %}",
         gpu: true
       });
     model.ready().then(()=>{
        modelconf.ready().then(()=>{
-       $('#process-wrp').fadeOut('fast');
-       $('#process-wrp').contents().remove();
-       $('.overlay').fadeOut();
-       $('body').removeClass('overlay-open');
+           modeldiv.ready().then(()=>{
+                $('#process-wrp').fadeOut('fast');
+                $('#process-wrp').contents().remove();
+                $('.overlay').fadeOut();
+                $('body').removeClass('overlay-open');
+            });
        });
     });
     prev = [];
     waitState = 0;
     iter = 0;
+    offsetx = 10;
+    offsety = offsetx * 2;
+    ans=0;
     var rev = {
         0:'0',
         1:'1',
@@ -164,29 +174,48 @@
         7:'7',
         8:'8',
         9:'9',
-        10:'a',
-        11:'b',
-        12:'c',
-        13:'x',
-        14:'y',
-        15:'z',
-        16:'+',
-        17:'-',
     }
     var revc= {
-        0:'0',
-        1:'1',
-        2:'2',
-        3:'3',
-        4:'4',
-        5:'5',
-        6:'6',
-        7:'7',
-        8:'8',
-        9:'9',
-        10:'x',
-        11:'+',
-        12:'-',
+        0:'+',
+        1:'-',
+        2:'a',
+        3:'b',
+        4:'c',
+        5:'d',
+        6:'e',
+        7:'f',
+        8:'x',
+        9:'y',
+        10:'z',    
+    }
+    function drawChar(newBox, ans)
+    {
+        id = newBox[1] + '-' + newBox[2] + '-' +newBox[3] + '-' +newBox[4]; 
+        if (newBox[4] < 5)
+        fontSize = 20;
+      else
+        fontSize = newBox[4];
+      iter++;
+      $('#canvas-boxes').append('<div id="box-' + id + '" class="num-box sketch-box" data-id=' + iter + ' ></div>');
+      $('#box-' + id).text(ans);
+      $('#box-' + id).css({
+      'height': newBox[4],
+      'width': newBox[3],
+      'top': newBox[2],
+      'left': newBox[1],
+      'font-size': fontSize,
+      'z-index': 2,
+      'display':'none'
+      });
+      $('#box-' + id).on('click', function () {
+        boxid = this.id;
+        val = prompt("Please enter correct value:");
+        if(isValid(val))
+        {
+           sendToLearn(val, newBox, boxid);
+       }});
+     symlist.push([newBox[1], newBox[2], newBox[3], newBox[4], ans, Number(iter), ans, [], '\0', 0]);
+     $('#box-' + id).fadeIn();
     }
     function sendToLearn(val, box, boxid)
     {
@@ -202,7 +231,6 @@
         var img = nj.images.read(canvashid);
         img = nj.images.rgb2gray(img);
         img = nj.images.resize(img, 28, 28);
-        img = nj.negative(img);
         canvashid.height = img.shape[1];
         canvashid.width = img.shape[0];
         nj.images.save(img, canvashid);
@@ -296,9 +324,9 @@
             val = prompt("Please enter correct value:");
             if(isValid(val))
             {
-                sendToLearn(val, newBox, iter);
+                sendToLearn(val, newBox, boxid);
             }
-            });
+        });
         restoreList = $.extend(true, [], symlist);
         if(symlist.length > 0)
             evaluateList();
@@ -342,104 +370,61 @@
             
             if (checkBox)
             {
-                var offsingle = 20;
-                var offdouble = offsingle * 2;
                 newBox = [rev[checkBox],0,0,0,0];
                 newBox[1] = prev[1] < x ? prev[1]:x;
                 newBox[2] = prev[2] < y ? prev[2]:y;
                 newBox[3] = prev[3] > w ? prev[3]:w;
                 newBox[4] = prev[4] > h ? prev[4]:h;
-                id = newBox[1] + '-' + newBox[2] + '-' +newBox[3] + '-' +newBox[4]; 
-                canvashid.height = newBox[4]+offdouble;
-                canvashid.width = newBox[3]+offdouble;
-                maxDim = canvashid.height > canvashid.width ? canvashid.height+offdouble:canvashid.width+offdouble;
-                canvashid.height= maxDim;
-                canvashid.width=maxDim;
+                maxDim = newBox[3]>newBox[4]?newBox[3]:newBox[4];
+                canvashid.width = maxDim;
+                canvashid.height = maxDim;
+                offx = (maxDim - newBox[3])/2;
+                offy = (maxDim - newBox[4])/2;
                 contexthid.fillStyle = "white";
                 contexthid.fillRect(0, 0, maxDim, maxDim);
-                var offsingle = 5,offdouble = offsingle*2;
-                var imw = newBox[3]+offdouble;
-                var imh = newBox[4]+offdouble;
-                var xr = imw/(imw+imh);
-                var yr = imh/(imw+imh);
-                var xsize = maxDim * xr;
-                var ysize = maxDim * yr;
-                if (xsize < 1)
-                    xsize = 1;
-                if (ysize < 1)
-                    ysize = 1;
-                offx = (maxDim-xsize)/2;
-                offy = (maxDim-ysize)/2;
-                contexthid.drawImage(canvas,newBox[1]-offsingle,newBox[2]-offsingle,newBox[3]+offdouble, newBox[4]+offdouble, offx, offy ,xsize, ysize);
+                contexthid.drawImage(canvas,newBox[1],newBox[2],newBox[3], newBox[4], offx, offy ,newBox[3], newBox[4]);
                 var img = nj.images.read(canvashid);
                 img = nj.images.rgb2gray(img);
                 img = nj.images.resize(img, 28, 28);
-                img = nj.negative(img);
+                img = img.divide(255);
                 img = img.reshape([1, 28, 28, 1]);
                 img = img.flatten();
-                //canvas.height = img.shape[1];
-                //canvas.width = img.shape[0];
-                //nj.images.save(img, canvas);
         
                 var inputdata = new Float32Array(img.selection.data);
-                model
+                modeldiv
                 .ready()
                 .then(() => {
-                  // input data object keyed by names of the input layers
-                  // or `input` for Sequential models
-                  // values are the flattened Float32Array data
-                  // (input tensor shapes are specified in the model config)
                   const inputData = {
                     input: inputdata
                   }
-              
-                  // make predictions
-                  return model.predict(inputData)
+                  return modeldiv.predict(inputData)
                 })
                 .then(outputData => {
-                  // outputData is an object keyed by names of the output layers
-                  // or `output` for Sequential models
-                  // e.g.,
-                  // outputData['fc1000']
-                  var ans = rev[argmax(outputData.output)];
-                  var inputdata = new Float32Array(imgalt.selection.data);
-                  if (argmax(outputData.output) <= 9)
+                  if (outputData.output[0] <= 0.5)
                         modelconf.ready().then(()=>
                         {
                             const inputData = {
                                 input: inputdata
                             }
-                            return model.predict(inputData)
+                            return modelconf.predict(inputData)
                         }).then(outputData => {
-                            var ans = revc[argmax(outputData.output)];
+                            drawChar(newBox,revc[argmax(outputData.output)]);
                         }).catch(err=>{
                             console.log(err);
                         });
-                  if (newBox[4] < 5)
-                    fontSize = 20;
-                  else
-                    fontSize = newBox[4];
-                  iter++;
-                  $('#canvas-boxes').append('<div id="box-' + id + '" class="num-box sketch-box" data-id=' + iter + ' ></div>');
-                  $('#box-' + id).text(ans);
-                  $('#box-' + id).css({
-                  'height': newBox[4],
-                  'width': newBox[3],
-                  'top': newBox[2],
-                  'left': newBox[1],
-                  'font-size': fontSize,
-                  'z-index': 2,
-                  'display':'none'
-                  });
-                  $('#box-' + id).on('click', function () {
-                    boxid = this.id;
-                    val = prompt("Please enter correct value:");
-                    if(isValid(val))
-                    {
-                       sendToLearn(val, newBox, boxid);
-                   }});
-                 symlist.push([newBox[1], newBox[2], newBox[3], newBox[4], ans, Number(iter), ans, [], '\0', 0]);
-                 $('#box-' + id).fadeIn();
+                    else
+                        model.ready().then(()=>
+                        {
+                            const inputData = {
+                            input: inputdata
+                            }
+                            return model.predict(inputData)
+                        }).then(outputData => {
+                            drawChar(newBox,rev[argmax(outputData.output)]);
+                        }).catch(err=>{
+                            console.log(err);
+                        });
+
                  waitState = 0;
                  })
                 .catch(err => {
@@ -531,32 +516,24 @@
       });
       $('#canvas').on('mouseup',function(e){
         paint = false;
-        var offsingle = 20;
-        var offdouble = offsingle * 2;
-        canvashid.height = maxy-miny+offsingle;
-        canvashid.width = maxx-minx+offsingle;
-        maxDim = canvashid.height > canvashid.width ? canvashid.height+2:canvashid.width+2;
-        canvashid.height= maxDim;
-        canvashid.width=maxDim;
+        newBox = [0,0,0,0,0]
+        newBox[1] = minx-offsetx;
+        newBox[2] = miny-offsety;
+        newBox[3] = maxx-minx+offsetx*2;
+        newBox[4] = maxy-miny+offsety*2;
+        id = newBox[1] + '-' + newBox[2] + '-' +newBox[3] + '-' +newBox[4]; 
+        maxDim = newBox[3]>newBox[4]?newBox[3]:newBox[4];
+        canvashid.width = maxDim;
+        canvashid.height = maxDim;
+        offx = (maxDim - newBox[3])/2;
+        offy = (maxDim - newBox[4])/2;
         contexthid.fillStyle = "white";
         contexthid.fillRect(0, 0, maxDim, maxDim);
-        var imw = maxx-minx+offdouble;
-        var imh = maxy-miny+offdouble;
-        var xr = imw/(imw+imh);
-        var yr = imh/(imw+imh);
-        var xsize = maxDim * xr;
-        var ysize = maxDim * yr;
-        if (xsize < 1)
-            xsize = 1;
-        if (ysize < 1)
-            ysize = 1;
-        offx = (maxDim-xsize)/2;
-        offy = (maxDim-ysize)/2;
-        contexthid.drawImage(canvas,minx-offsingle,miny-offsingle,maxx-minx+offdouble, maxy-miny+offdouble, offx, offy ,xsize, ysize);
+        contexthid.drawImage(canvas,newBox[1],newBox[2],newBox[3], newBox[4], offx, offy ,newBox[3], newBox[4]);
         var img = nj.images.read(canvashid);
         img = nj.images.rgb2gray(img);
         img = nj.images.resize(img, 28, 28);
-        img = nj.negative(img);
+        img = img.divide(255);
         img = img.reshape([1, 28, 28, 1]);
         img = img.flatten();
         //canvas.height = img.shape[1];
@@ -564,39 +541,38 @@
         //nj.images.save(img, canvas);
 
         var inputdata = new Float32Array(img.selection.data);
-        model
+        modeldiv
         .ready()
         .then(() => {
-          // input data object keyed by names of the input layers
-          // or `input` for Sequential models
-          // values are the flattened Float32Array data
-          // (input tensor shapes are specified in the model config)
           const inputData = {
             input: inputdata
           }
-      
-          // make predictions
-          return model.predict(inputData)
+          return modeldiv.predict(inputData)
         })
         .then(outputData => {
-          // outputData is an object keyed by names of the output layers
-          // or `output` for Sequential models
-          // e.g.,
-          // outputData['fc1000']
-          ans = rev[argmax(outputData.output)];
-          if (argmax(outputData.output) <= 9 || argmax(outputData.output) == 13 || argmax(outputData.output) == 16 || argmax(outputData.output) == 17)
+          if (outputData.output[0] <= 0.5 )
           modelconf.ready().then(()=>
           {
               const inputData = {
                   input: inputdata
-              }
-              return model.predict(inputData)
+          }
+              return modelconf.predict(inputData)
           }).then(outputData => {
-              var ans = revc[argmax(outputData.output)];
+            addResponse({'ans':revc[argmax(outputData.output)]},minx-offsetx, miny-offsety, maxx-minx+offsetx*2,maxy-miny+offsety*2);
           }).catch(err =>{
               console.log(err);
           });
-          addResponse({'ans':ans},minx-offsingle, miny-offsingle, maxx-minx+offdouble,maxy-miny+offdouble);
+          else
+          model.ready().then(()=>
+          {
+              const inputData = {
+              input: inputdata
+              }
+              return model.predict(inputData)
+          }).then(outputData => {
+            addResponse({'ans':rev[argmax(outputData.output)]},minx-offsetx, miny-offsety, maxx-minx+offsetx*2,maxy-miny+offsety*2);          }).catch(err=>{
+              console.log(err);
+          });
         })
         .catch(err => {
           // handle error
