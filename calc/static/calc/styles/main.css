@@ -867,8 +867,8 @@ body.overlay-open { overflow: hidden; }
 	color:var(--color-c);
 }
 .sketch-box{
-	background: white;
-	color:black;
+	background: rgba(0, 0, 0, 0.39);
+	color:white;
 }
 .cam-btns{
 	dislay:inline-block;
